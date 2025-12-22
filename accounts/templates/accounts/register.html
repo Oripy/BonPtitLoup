@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% trans "Inscription" %} - {% trans "Les Bons P'tits Loups" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">{% trans "Inscription" %}</h2>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200">
+            {% trans "S'inscrire" %}
+        </button>
+    </form>
+    <p class="mt-4 text-center text-gray-600">
+        {% trans "Vous avez déjà un compte ?" %} <a href="{% url 'accounts:login' %}" class="text-blue-600 hover:underline">{% trans "Connectez-vous ici" %}</a>
+    </p>
+</div>
+{% endblock %}
+

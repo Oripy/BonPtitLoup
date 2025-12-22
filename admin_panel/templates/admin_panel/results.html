@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Résultats" %} - {{ date_group.title }} - {% trans "Panneau d'administration" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">{% trans "Résultats du vote" %}: {{ date_group.title }}</h1>
+            {% if date_group.description %}
+                <p class="text-gray-600 mt-2">{{ date_group.description }}</p>
+            {% endif %}
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'admin_panel:export_csv' date_group.pk %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200">
+                {% trans "Exporter CSV" %}
+            </a>
+            <a href="{% url 'admin_panel:export_excel' date_group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+                {% trans "Exporter Excel" %}
+            </a>
+        </div>
+    </div>
+
+    {% if statistics %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% regroup statistics by option as date_stats %}
+                    {% for date_option in date_stats %}
+                        <tr class="hover:bg-gray-50">
+                            {% for stat in date_option.list %}
+                                {% if forloop.first %}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ stat.option.date|date }}
+                                </td>
+                                {% endif %}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                    {{ stat.time_slot.get_period_display }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" title="{{ stat.yes_children|join:', ' }}">
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-sm font-medium text-green-700">{{ stat.yes }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" title="{{ stat.maybe_children|join:', ' }}">
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-sm font-medium text-yellow-700">{{ stat.maybe }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" title="{{ stat.no_children|join:', ' }}">
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-sm font-medium text-red-700">{{ stat.no }}</span>
+                                    </div>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-600 text-lg">{% trans "Aucun vote n'a encore été exprimé pour ce groupe de dates." %}</p>
+        </div>
+    {% endif %}
+
+    <div class="mt-6">
+        <a href="{% url 'admin_panel:dashboard' %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition duration-200">
+            {% trans "Retour au tableau de bord" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

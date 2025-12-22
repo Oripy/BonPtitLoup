@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {% trans "Panneau d'administration" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ title }}</h1>
+    
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="space-y-4">
+            {{ form|crispy }}
+        </div>
+        
+        <div class="border-t pt-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">{% trans "Options de dates" %}</h2>
+                <button type="button" id="add-form" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200">
+                    {% trans "Ajouter une option de date" %}
+                </button>
+            </div>
+            {{ formset.management_form }}
+            <div id="formset-container" class="space-y-4">
+                {% for form in formset %}
+                    <div class="border border-gray-200 rounded-lg p-4 formset-form" data-form-index="{{ forloop.counter0 }}">
+                        {{ form|crispy }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="flex space-x-4 pt-4">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition duration-200">
+                {% trans "Enregistrer" %}
+            </button>
+            <a href="{% url 'admin_panel:dashboard' %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition duration-200">
+                {% trans "Annuler" %}
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formsetContainer = document.getElementById('formset-container');
+    const addButton = document.getElementById('add-form');
+    const totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
+    
+    let formCount = formsetContainer.children.length;
+    
+    addButton.addEventListener('click', function() {
+        const lastForm = formsetContainer.querySelector('.formset-form:last-child');
+        if (!lastForm) return;
+        
+        const newForm = lastForm.cloneNode(true);
+        const newIndex = formCount;
+        
+        // Update form indices - replace any number with newIndex
+        const regex = /-(\d+)-/g;
+        newForm.querySelectorAll('input, select, textarea, label').forEach(function(element) {
+            if (element.name) {
+                element.name = element.name.replace(regex, '-' + newIndex + '-');
+            }
+            if (element.id) {
+                element.id = element.id.replace(regex, '-' + newIndex + '-');
+            }
+            if (element.htmlFor) {
+                element.htmlFor = element.htmlFor.replace(regex, '-' + newIndex + '-');
+            }
+        });
+        
+        // Clear the date input value
+        const dateInput = newForm.querySelector('input[type="date"]');
+        if (dateInput) {
+            dateInput.value = '';
+        }
+        
+        // Reset DELETE checkbox if present
+        const deleteCheckbox = newForm.querySelector('input[type="checkbox"][name*="-DELETE"]');
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = false;
+        }
+        
+        // Update form count
+        formCount++;
+        if (totalFormsInput) {
+            totalFormsInput.value = formCount;
+        }
+        
+        // Add new form to container
+        formsetContainer.appendChild(newForm);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Liste des parents" %} - {% trans "Panneau d'administration" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">{% trans "Liste des parents" %}</h1>
+        <a href="{% url 'admin_panel:dashboard' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition duration-200">
+            {% trans "Retour au tableau de bord" %}
+        </a>
+    </div>
+
+    {% if parents %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Prénom" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Adresse e-mail" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Enfants" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nombre d'enfants" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for parent in parents %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ parent.last_name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ parent.first_name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600">{{ parent.email }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">
+                                    {% if parent.children.all %}
+                                        <ul class="list-disc list-inside space-y-1">
+                                            {% for child in parent.children.all %}
+                                                <li>
+                                                    {{ child.name }} 
+                                                    <span class="text-gray-500 text-xs">
+                                                        ({% trans "né le" %} {{ child.birth_date|date:"d/m/Y" }} - {{ child.age }} {% trans "ans" %})
+                                                    </span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <span class="text-gray-400 italic">{% trans "Aucun enfant enregistré" %}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {{ parent.children.count }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-6 text-sm text-gray-600">
+            <p><strong>{% trans "Total" %}:</strong> {{ parents.count }} {% trans "parent(s)" %}</p>
+        </div>
+    {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-600 text-lg">{% trans "Aucun parent n'est encore enregistré." %}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,57 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% trans "Les Bons P'tits Loups" %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'home' %}" class="text-xl font-bold">{% trans "Les Bons P'tits Loups" %}</a>
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <span class="text-sm">{% blocktrans with first=user.first_name last=user.last_name %}Bienvenue, {{ first }} {{ last }}{% endblocktrans %}</span>
+                        {% if user.is_admin %}
+                            <a href="{% url 'admin_panel:dashboard' %}" class="hover:text-blue-200">{% trans "Panneau d'administration" %}</a>
+                        {% endif %}
+                        {% if user.is_parent or user.is_admin %}
+                            <a href="{% url 'children:dashboard' %}" class="hover:text-blue-200">{% trans "Mes enfants" %}</a>
+                            <a href="{% url 'voting:list' %}" class="hover:text-blue-200">{% trans "Voter" %}</a>
+                        {% endif %}
+                        <a href="{% url 'accounts:logout' %}" class="hover:text-blue-200">{% trans "Déconnexion" %}</a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="hover:text-blue-200">{% trans "Connexion" %}</a>
+                        <a href="{% url 'accounts:register' %}" class="hover:text-blue-200">{% trans "Inscription" %}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} bg-{% if message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% else %}blue{% endif %}-100 border border-{% if message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% else %}blue{% endif %}-400 text-{% if message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% else %}blue{% endif %}-700 px-4 py-3 rounded mb-2">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-auto py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 {% trans "Les Bons P'tits Loups" %}. {% trans "Tous droits réservés." %}</p>
+        </div>
+    </footer>
+</body>
+</html>
+
