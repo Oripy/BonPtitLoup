@@ -22,6 +22,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Adresse e-mail" %}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Enfants" %}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nombre d'enfants" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -34,7 +35,7 @@
                                 <div class="text-sm text-gray-900">{{ parent.first_name }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-600">{{ parent.email }}</div>
+                                <a href="mailto:{{ parent.email }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">{{ parent.email }}</a>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">
@@ -58,6 +59,14 @@
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                     {{ parent.children.count }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <form method="post" action="{% url 'admin_panel:reset_parent_password' parent.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-orange-600 text-white px-3 py-1 rounded hover:bg-orange-700 transition duration-200 text-xs" onclick="return confirm('{% trans "Êtes-vous sûr de vouloir réinitialiser le mot de passe à 0000 ?" %}');">
+                                        {% trans "Réinitialiser mot de passe" %}
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

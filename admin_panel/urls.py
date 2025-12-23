@@ -6,6 +6,7 @@ app_name = 'admin_panel'
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('parents/', views.parents_list, name='parents_list'),
+    path('parents/<int:parent_id>/reset-password/', views.reset_parent_password, name='reset_parent_password'),
     path('create/', views.date_group_create, name='create'),
     path('<int:pk>/edit/', views.date_group_edit, name='edit'),
     path('<int:pk>/delete/', views.date_group_delete, name='delete'),

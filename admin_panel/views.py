@@ -221,3 +221,21 @@ def parents_list(request):
         'parents': parents,
     }
     return render(request, 'admin_panel/parents_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def reset_parent_password(request, parent_id):
+    """Reset a parent's password to 0000"""
+    parent = get_object_or_404(CustomUser, pk=parent_id, is_parent=True)
+    
+    if request.method == 'POST':
+        parent.set_password('0000')
+        parent.save()
+        messages.success(request, _('Le mot de passe de %(name)s a été réinitialisé à 0000.') % {'name': f"{parent.first_name} {parent.last_name}"})
+        return redirect('admin_panel:parents_list')
+    
+    context = {
+        'parent': parent,
+    }
+    return render(request, 'admin_panel/reset_password_confirm.html', context)
