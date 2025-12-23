@@ -6,6 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% trans "Les Bons P'tits Loups" %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Add border to input fields when not focused */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        input[type="number"],
+        textarea,
+        select {
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #3b82f6 !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Ensure crispy forms inputs also have borders */
+        .form-control {
+            border: 1px solid #d1d5db !important;
+        }
+        
+        .form-control:focus {
+            border-color: #3b82f6 !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <nav class="bg-blue-600 text-white shadow-lg">
@@ -22,7 +60,7 @@
                             <a href="{% url 'children:dashboard' %}" class="hover:text-blue-200">{% trans "Mes enfants" %}</a>
                             <a href="{% url 'voting:list' %}" class="hover:text-blue-200">{% trans "Voter" %}</a>
                         {% endif %}
-                        <a href="{% url 'accounts:change_password' %}" class="hover:text-blue-200">{% trans "Gestion du compte" %}</a>
+                        <a href="{% url 'accounts:change_password' %}" class="hover:text-blue-200">{% trans "Compte" %}</a>
                         <a href="{% url 'accounts:logout' %}" class="hover:text-blue-200">{% trans "Déconnexion" %}</a>
                     {% else %}
                         <a href="{% url 'accounts:login' %}" class="hover:text-blue-200">{% trans "Connexion" %}</a>
