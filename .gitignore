@@ -13,3 +13,4 @@
 *.pyzwzwzwz
 __pycache__/
 venv/
+local_settings.py
