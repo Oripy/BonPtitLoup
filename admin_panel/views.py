@@ -143,11 +143,11 @@ def export_excel(request, pk):
         
         for date_option in date_options:
             # Create a sheet for each date
-            date_str = date_option.date.strftime('%Y-%m-%d')
+            date_str = date_option.date.strftime('%d-%b-%Y')
             ws = wb.create_sheet(title=date_str)
             
             # Headers
-            headers1 = ['', '', 'Réservation', '','','arrivée', '', 'départ']
+            headers1 = ['', date_str, 'Réservation', '','','arrivée', '', 'départ']
             headers2 = ['#', 'Nom de l\'enfant', 'M', 'R', 'AM', 'heure', 'signature', 'heure', 'signature']
             ws.append(headers1)
             ws.append(headers2)
@@ -166,7 +166,7 @@ def export_excel(request, pk):
             for time_slot in time_slots:
                 yes_votes = Vote.objects.filter(
                     time_slot=time_slot,
-                    choice='yes'
+                    choice__in=['yes', 'maybe']
                 ).select_related('child')
                 for vote in yes_votes:
                     children_with_yes.add(vote.child)
@@ -181,21 +181,30 @@ def export_excel(request, pk):
             afternoon_slot = time_slots.filter(period='afternoon').first()
             
             # Create vote lookup dictionaries
-            morning_votes = {}
-            lunch_votes = {}
-            afternoon_votes = {}
-            
+            morning_votes_y = {}
+            lunch_votes_y = {}
+            afternoon_votes_y = {}
+            morning_votes_m = {}
+            lunch_votes_m = {}
+            afternoon_votes_m = {}
+
             if morning_slot:
                 for vote in Vote.objects.filter(time_slot=morning_slot, choice='yes').select_related('child'):
-                    morning_votes[vote.child.id] = True
+                    morning_votes_y[vote.child.id] = True
+                for vote in Vote.objects.filter(time_slot=morning_slot, choice='maybe').select_related('child'):
+                    morning_votes_m[vote.child.id] = True
             
             if lunch_slot:
                 for vote in Vote.objects.filter(time_slot=lunch_slot, choice='yes').select_related('child'):
-                    lunch_votes[vote.child.id] = True
+                    lunch_votes_y[vote.child.id] = True
+                for vote in Vote.objects.filter(time_slot=lunch_slot, choice='maybe').select_related('child'):
+                    lunch_votes_m[vote.child.id] = True
             
             if afternoon_slot:
                 for vote in Vote.objects.filter(time_slot=afternoon_slot, choice='yes').select_related('child'):
-                    afternoon_votes[vote.child.id] = True
+                    afternoon_votes_y[vote.child.id] = True
+                for vote in Vote.objects.filter(time_slot=afternoon_slot, choice='maybe').select_related('child'):
+                    afternoon_votes_m[vote.child.id] = True
             
             # Add rows for each child
             separator = False
@@ -209,12 +218,30 @@ def export_excel(request, pk):
                         cell.fill = PatternFill(start_color='D9D9D9', end_color='D9D9D9', fill_type = "solid")
 
                 child_name_with_age = f"{child.name} ({child.age()} ans)"
+                if child.id in morning_votes_y:
+                    morning_vote = '✓'
+                elif child.id in morning_votes_m:
+                    morning_vote = '?'
+                else:
+                    morning_vote = ''
+                if child.id in lunch_votes_y:
+                    lunch_vote = '✓'
+                elif child.id in lunch_votes_m:
+                    lunch_vote = '?'
+                else:
+                    lunch_vote = ''
+                if child.id in afternoon_votes_y:
+                    afternoon_vote = '✓'
+                elif child.id in afternoon_votes_m:
+                    afternoon_vote = '?'
+                else:
+                    afternoon_vote = ''
                 ws.append([
                     i+1 - offset,
                     child_name_with_age,
-                    '✓' if child.id in morning_votes else '',
-                    '✓' if child.id in lunch_votes else '',
-                    '✓' if child.id in afternoon_votes else '',
+                    morning_vote,
+                    lunch_vote,
+                    afternoon_vote,
                 ])
             
             # Auto-adjust column widths
