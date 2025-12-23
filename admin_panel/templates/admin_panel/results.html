@@ -20,58 +20,140 @@
     </div>
 
     {% if statistics %}
-        <div class="overflow-x-auto -mx-4 sm:mx-0">
-            <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% regroup statistics by option as date_stats %}
-                    {% for date_option in date_stats %}
-                        <tr class="hover:bg-gray-50">
-                            {% for stat in date_option.list %}
-                                {% if forloop.first %}
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ stat.option.date|date }}
-                                </td>
-                                {% endif %}
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    {{ stat.time_slot.get_period_display }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center" title="{{ stat.yes_children|join:', ' }}">
-                                    <div class="flex flex-col items-center">
-                                        <span class="text-sm font-medium text-green-700">{{ stat.yes }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center" title="{{ stat.maybe_children|join:', ' }}">
-                                    <div class="flex flex-col items-center">
-                                        <span class="text-sm font-medium text-yellow-700">{{ stat.maybe }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center" title="{{ stat.no_children|join:', ' }}">
-                                    <div class="flex flex-col items-center">
-                                        <span class="text-sm font-medium text-red-700">{{ stat.no }}</span>
-                                    </div>
-                                </td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="space-y-4 sm:space-y-6">
+            {% regroup statistics by option as date_stats %}
+            {% for date_option in date_stats %}
+                <div class="border border-gray-300 rounded-lg p-3 sm:p-4 bg-white">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">{{ date_option.grouper.date|date }}</h3>
+                    <div class="overflow-x-auto -mx-3 sm:mx-0">
+                        <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
+                                    <th class="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
+                                    <th class="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
+                                    <th class="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
+                                    <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Enfants" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% comment %}Order time slots: morning, lunch, afternoon{% endcomment %}
+                                {% for stat in date_option.list %}
+                                    {% if stat.time_slot.period == 'morning' %}
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {{ stat.time_slot.get_period_display }}
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-green-700">{{ stat.yes }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-yellow-700">{{ stat.maybe }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-red-700">{{ stat.no }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 text-sm text-gray-600">
+                                                <div class="flex flex-col">
+                                                    {% if stat.yes_children %}
+                                                        <div class="mb-1">
+                                                            <span class="font-medium text-green-700">{% trans "Oui" %}:</span> {{ stat.yes_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if stat.maybe_children %}
+                                                        <div class="mb-1">
+                                                            <span class="font-medium text-yellow-700">{% trans "Peut-être" %}:</span> {{ stat.maybe_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if stat.no_children %}
+                                                        <div>
+                                                            <span class="font-medium text-red-700">{% trans "Non" %}:</span> {{ stat.no_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for stat in date_option.list %}
+                                    {% if stat.time_slot.period == 'lunch' %}
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {{ stat.time_slot.get_period_display }}
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-green-700">{{ stat.yes }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-yellow-700">{{ stat.maybe }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-red-700">{{ stat.no }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 text-sm text-gray-600">
+                                                <div class="flex flex-col">
+                                                    {% if stat.yes_children %}
+                                                        <div class="mb-1">
+                                                            <span class="font-medium text-green-700">{% trans "Oui" %}:</span> {{ stat.yes_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if stat.maybe_children %}
+                                                        <div class="mb-1">
+                                                            <span class="font-medium text-yellow-700">{% trans "Peut-être" %}:</span> {{ stat.maybe_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if stat.no_children %}
+                                                        <div>
+                                                            <span class="font-medium text-red-700">{% trans "Non" %}:</span> {{ stat.no_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for stat in date_option.list %}
+                                    {% if stat.time_slot.period == 'afternoon' %}
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {{ stat.time_slot.get_period_display }}
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-green-700">{{ stat.yes }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-yellow-700">{{ stat.maybe }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                                <span class="text-sm font-medium text-red-700">{{ stat.no }}</span>
+                                            </td>
+                                            <td class="px-3 sm:px-6 py-4 text-sm text-gray-600">
+                                                <div class="flex flex-col">
+                                                    {% if stat.yes_children %}
+                                                        <div class="mb-1">
+                                                            <span class="font-medium text-green-700">{% trans "Oui" %}:</span> {{ stat.yes_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if stat.maybe_children %}
+                                                        <div class="mb-1">
+                                                            <span class="font-medium text-yellow-700">{% trans "Peut-être" %}:</span> {{ stat.maybe_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if stat.no_children %}
+                                                        <div>
+                                                            <span class="font-medium text-red-700">{% trans "Non" %}:</span> {{ stat.no_children|join:', ' }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     {% else %}
         <div class="text-center py-12">
