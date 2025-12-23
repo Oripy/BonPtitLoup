@@ -21,17 +21,15 @@ class DateInput(forms.DateInput):
 class DateGroupForm(forms.ModelForm):
     class Meta:
         model = DateGroup
-        fields = ['title', 'description', 'is_active', 'status']
+        fields = ['title', 'description', 'status']
         labels = {
             'title': _('Titre'),
             'description': _('Description'),
-            'is_active': _('Actif'),
             'status': _('Statut'),
         }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
 

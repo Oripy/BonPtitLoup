@@ -10,7 +10,7 @@ from .models import DateGroup, DateOption, TimeSlot, Vote
 @login_required
 def date_group_list(request):
     """List all active and closed date groups"""
-    date_groups = DateGroup.objects.filter(is_active=True).filter(
+    date_groups = DateGroup.objects.filter(
         Q(status='active') | Q(status='closed')
     ).prefetch_related('date_options__time_slots')
     children = Child.objects.filter(parent=request.user)
@@ -38,7 +38,7 @@ def date_group_list(request):
 @login_required
 def vote_view(request, group_id):
     """Vote on a date group for each child and each time slot"""
-    date_group = get_object_or_404(DateGroup, pk=group_id, is_active=True)
+    date_group = get_object_or_404(DateGroup, pk=group_id)
     
     # Check if voting is allowed
     if not date_group.can_vote():

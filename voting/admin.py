@@ -9,8 +9,8 @@ class DateOptionInline(admin.TabularInline):
 
 @admin.register(DateGroup)
 class DateGroupAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_by', 'created_at', 'is_active', 'status', 'get_total_votes')
-    list_filter = ('is_active', 'status', 'created_at')
+    list_display = ('title', 'created_by', 'created_at', 'status', 'get_total_votes')
+    list_filter = ('status', 'created_at')
     search_fields = ('title', 'description')
     inlines = [DateOptionInline]
     readonly_fields = ('created_at',)

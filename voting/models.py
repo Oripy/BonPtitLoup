@@ -7,13 +7,13 @@ class DateGroup(models.Model):
     STATUS_CHOICES = [
         ('active', _('Actif')),
         ('closed', _('Fermé')),
+        ('inactive', _('Inactif')),
     ]
     
     title = models.CharField(max_length=200, verbose_name=_('Titre'))
     description = models.TextField(blank=True, null=True, verbose_name=_('Description'))
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_date_groups', verbose_name=_('Créé par'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Date de création'))
-    is_active = models.BooleanField(default=True, verbose_name=_('Actif'))
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active', verbose_name=_('Statut'))
     
     class Meta:
@@ -28,9 +28,13 @@ class DateGroup(models.Model):
         """Check if the date group is closed"""
         return self.status == 'closed'
     
+    def is_inactive(self):
+        """Check if the date group is inactive"""
+        return self.status == 'inactive'
+    
     def can_vote(self):
         """Check if voting is allowed for this date group"""
-        return self.status == 'active' and self.is_active
+        return self.status == 'active'
 
     def get_total_votes(self):
         """Get total number of votes for this date group"""
