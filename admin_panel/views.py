@@ -213,7 +213,7 @@ def export_excel(request, pk):
 @user_passes_test(is_admin)
 def parents_list(request):
     """List all registered parents with their email and children"""
-    parents = CustomUser.objects.filter(is_parent=True).prefetch_related(
+    parents = CustomUser.objects.prefetch_related(
         Prefetch('children', queryset=Child.objects.order_by('name'))
     ).order_by('last_name', 'first_name')
     
@@ -239,3 +239,29 @@ def reset_parent_password(request, parent_id):
         'parent': parent,
     }
     return render(request, 'admin_panel/reset_password_confirm.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def toggle_admin_status(request, parent_id):
+    """Toggle admin status for a parent"""
+    user = get_object_or_404(CustomUser, pk=parent_id, is_parent=True)
+    
+    # Prevent demoting yourself
+    if user == request.user:
+        messages.error(request, _('Vous ne pouvez pas modifier votre propre statut d\'administrateur.'))
+        return redirect('admin_panel:parents_list')
+    
+    if request.method == 'POST':
+        user.is_admin = not user.is_admin
+        user.save()
+        if user.is_admin:
+            messages.success(request, _('%(name)s a été promu administrateur.') % {'name': f"{user.first_name} {user.last_name}"})
+        else:
+            messages.success(request, _('%(name)s n\'est plus administrateur.') % {'name': f"{user.first_name} {user.last_name}"})
+        return redirect('admin_panel:parents_list')
+    
+    context = {
+        'user': user,
+    }
+    return render(request, 'admin_panel/toggle_admin_confirm.html', context)

@@ -17,9 +17,11 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom d'utilisateur" %}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Prénom" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom" %}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Adresse e-mail" %}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Statut" %}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Enfants" %}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nombre d'enfants" %}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
@@ -29,13 +31,23 @@
                     {% for parent in parents %}
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ parent.last_name }}</div>
+                                <div class="text-sm font-medium text-gray-900">{{ parent.username }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ parent.first_name }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ parent.last_name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <a href="mailto:{{ parent.email }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">{{ parent.email }}</a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if parent.is_admin %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">{% trans "Administrateur" %}</span>
+                                {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{% trans "Parent" %}</span>
+                                {% endif %}
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900">
@@ -61,12 +73,26 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <form method="post" action="{% url 'admin_panel:reset_parent_password' parent.id %}" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="bg-orange-600 text-white px-3 py-1 rounded hover:bg-orange-700 transition duration-200 text-xs" onclick="return confirm('{% trans "Êtes-vous sûr de vouloir réinitialiser le mot de passe à 0000 ?" %}');">
-                                        {% trans "Réinitialiser mot de passe" %}
-                                    </button>
-                                </form>
+                                <div class="flex flex-col space-y-2">
+                                    <form method="post" action="{% url 'admin_panel:reset_parent_password' parent.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="bg-orange-600 text-white px-3 py-1 rounded hover:bg-orange-700 transition duration-200 text-xs w-full" onclick="return confirm('{% trans "Êtes-vous sûr de vouloir réinitialiser le mot de passe à 0000 ?" %}');">
+                                            {% trans "Réinitialiser mot de passe" %}
+                                        </button>
+                                    </form>
+                                    {% if parent.id != request.user.id %}
+                                        <form method="post" action="{% url 'admin_panel:toggle_admin_status' parent.id %}" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="{% if parent.is_admin %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} text-white px-3 py-1 rounded transition duration-200 text-xs w-full">
+                                                {% if parent.is_admin %}
+                                                    {% trans "Rétrograder" %}
+                                                {% else %}
+                                                    {% trans "Promouvoir admin" %}
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
