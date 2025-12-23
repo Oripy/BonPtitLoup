@@ -4,6 +4,20 @@ from django.utils.translation import gettext_lazy as _
 from voting.models import DateGroup, DateOption
 
 
+class DateInput(forms.DateInput):
+    """Custom DateInput widget that ensures proper format for HTML5 date inputs"""
+    input_type = 'date'
+    
+    def format_value(self, value):
+        """Format the date value as YYYY-MM-DD for HTML5 date input"""
+        if value is None:
+            return ''
+        if isinstance(value, str):
+            return value
+        # Format as YYYY-MM-DD
+        return value.strftime('%Y-%m-%d')
+
+
 class DateGroupForm(forms.ModelForm):
     class Meta:
         model = DateGroup
@@ -30,7 +44,7 @@ class DateOptionForm(forms.ModelForm):
             'date': _('Date'),
         }
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'date': DateInput(attrs={'class': 'form-control'}),
         }
 
 
