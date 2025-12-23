@@ -16,8 +16,21 @@
         
         <div class="space-y-6">
             {% for child in children %}
-                <div class="border-2 border-blue-200 rounded-lg p-3 sm:p-4 bg-blue-50">
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">{{ child.name }}</h2>
+                <div class="border-2 border-blue-200 rounded-lg p-3 sm:p-4 bg-blue-50" data-child-id="{{ child.id }}">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-0">{{ child.name }}</h2>
+                        {% if not forloop.first %}
+                            {% with first_child=children.0 %}
+                                <button type="button" 
+                                        class="copy-votes-btn bg-green-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded hover:bg-green-700 transition duration-200 text-xs sm:text-sm"
+                                        data-source-child-id="{{ first_child.id }}"
+                                        data-target-child-id="{{ child.id }}"
+                                        data-source-child-name="{{ first_child.name }}">
+                                    {% trans "Copier depuis" %} {{ first_child.name }}
+                                </button>
+                            {% endwith %}
+                        {% endif %}
+                    </div>
                     
                     <div class="space-y-4 sm:space-y-6">
                         {% for option in date_options %}
@@ -99,4 +112,75 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all copy buttons
+    const copyButtons = document.querySelectorAll('.copy-votes-btn');
+    
+    copyButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const sourceChildId = this.getAttribute('data-source-child-id');
+            const targetChildId = this.getAttribute('data-target-child-id');
+            const originalText = this.textContent;
+            
+            // Find all radio buttons for the source child
+            const sourceRadios = document.querySelectorAll(`input[type="radio"][name^="choice_${sourceChildId}_"]`);
+            
+            // Group radio buttons by time slot ID
+            const timeSlotChoices = {};
+            sourceRadios.forEach(function(sourceRadio) {
+                if (sourceRadio.checked) {
+                    // Extract the time slot ID from the source radio name: "choice_CHILDID_TIMESLOTID"
+                    const parts = sourceRadio.name.split('_');
+                    const timeSlotId = parts[2];
+                    const choiceValue = sourceRadio.value;
+                    timeSlotChoices[timeSlotId] = choiceValue;
+                }
+            });
+            
+            // Copy choices to target child
+            let copiedCount = 0;
+            for (const timeSlotId in timeSlotChoices) {
+                const choiceValue = timeSlotChoices[timeSlotId];
+                const targetRadioName = `choice_${targetChildId}_${timeSlotId}`;
+                const targetRadio = document.querySelector(`input[type="radio"][name="${targetRadioName}"][value="${choiceValue}"]`);
+                
+                if (targetRadio) {
+                    targetRadio.checked = true;
+                    // Trigger change event to ensure form state is updated
+                    targetRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                    copiedCount++;
+                }
+            }
+            
+            // Show feedback
+            if (copiedCount > 0) {
+                this.textContent = '{% trans "Copié !" %}';
+                this.classList.remove('bg-green-600', 'hover:bg-green-700');
+                this.classList.add('bg-green-500');
+                
+                const buttonRef = this;
+                setTimeout(function() {
+                    buttonRef.textContent = originalText;
+                    buttonRef.classList.remove('bg-green-500');
+                    buttonRef.classList.add('bg-green-600', 'hover:bg-green-700');
+                }, 2000);
+            } else {
+                // No votes to copy
+                this.textContent = '{% trans "Aucun vote à copier" %}';
+                this.classList.remove('bg-green-600', 'hover:bg-green-700');
+                this.classList.add('bg-yellow-500');
+                
+                const buttonRef = this;
+                setTimeout(function() {
+                    buttonRef.textContent = originalText;
+                    buttonRef.classList.remove('bg-yellow-500');
+                    buttonRef.classList.add('bg-green-600', 'hover:bg-green-700');
+                }, 2000);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
