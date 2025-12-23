@@ -91,6 +91,9 @@
                                                 {% endif %}
                                             </button>
                                         </form>
+                                        <a href="{% url 'admin_panel:delete_parent_account' parent.id %}" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition duration-200 text-xs w-full text-center block">
+                                            {% trans "Supprimer le compte" %}
+                                        </a>
                                     {% endif %}
                                 </div>
                             </td>

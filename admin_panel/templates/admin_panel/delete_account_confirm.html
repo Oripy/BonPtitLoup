@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Supprimer le compte" %} - {% trans "Panneau d'administration" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">{% trans "Supprimer le compte" %}</h1>
+    
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <p class="text-red-800 font-semibold mb-2">{% trans "Attention !" %}</p>
+        <p class="text-red-700 text-sm">
+            {% blocktrans with first=user.first_name last=user.last_name %}
+            Vous êtes sur le point de supprimer définitivement le compte de {{ first }} {{ last }}.
+            {% endblocktrans %}
+        </p>
+        <p class="text-red-700 text-sm mt-2">
+            {% trans "Cette action est irréversible et supprimera :" %}
+        </p>
+        <ul class="list-disc list-inside text-red-700 text-sm mt-2 space-y-1">
+            <li>{% trans "Le compte utilisateur" %}</li>
+            <li>{% trans "Tous les enfants associés" %}</li>
+            <li>{% trans "Tous les votes" %}</li>
+        </ul>
+    </div>
+    
+    <p class="text-gray-600 mb-6">
+        {% blocktrans with first=user.first_name last=user.last_name %}
+        Êtes-vous absolument sûr de vouloir supprimer le compte de {{ first }} {{ last }} ?
+        {% endblocktrans %}
+    </p>
+    
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div class="flex space-x-4">
+            <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition duration-200">
+                {% trans "Oui, supprimer" %}
+            </button>
+            <a href="{% url 'admin_panel:parents_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition duration-200">
+                {% trans "Annuler" %}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

@@ -265,3 +265,26 @@ def toggle_admin_status(request, parent_id):
         'user': user,
     }
     return render(request, 'admin_panel/toggle_admin_confirm.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def delete_parent_account(request, parent_id):
+    """Delete a parent account"""
+    user = get_object_or_404(CustomUser, pk=parent_id, is_parent=True)
+    
+    # Prevent deleting yourself
+    if user == request.user:
+        messages.error(request, _('Vous ne pouvez pas supprimer votre propre compte.'))
+        return redirect('admin_panel:parents_list')
+    
+    if request.method == 'POST':
+        user_name = f"{user.first_name} {user.last_name}"
+        user.delete()
+        messages.success(request, _('Le compte de %(name)s a été supprimé avec succès.') % {'name': user_name})
+        return redirect('admin_panel:parents_list')
+    
+    context = {
+        'user': user,
+    }
+    return render(request, 'admin_panel/delete_account_confirm.html', context)
