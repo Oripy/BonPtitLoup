@@ -26,7 +26,6 @@
                                     {% trans "Réservations" %}
                                 </a>
                             {% else %}
-                                <!-- <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 sm:mr-2 text-center justify-center"> -->
                                 <span class="bg-orange-100 text-orange-800 px-4 py-2 rounded text-center text-sm sm:text-base">
                                     {% trans "Fermé" %}
                                 </span>
@@ -36,41 +35,6 @@
                             </a>
                         </div>
                     </div>
-                    
-                    <!-- <div class="mt-4">
-                        <h3 class="font-semibold text-gray-700 mb-2">{% trans "Options de dates" %}:</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {% for option in group.date_options.all %}
-                                <div class="bg-gray-50 p-3 rounded border border-gray-200">
-                                    <p class="font-medium mb-2">{{ option.date|date }}</p>
-                                    <div class="space-y-1 text-sm">
-                                        {% for time_slot in option.time_slots.all %}
-                                            <div class="text-gray-600">
-                                                <span class="font-medium">{{ time_slot.get_period_display }}:</span>
-                                                {% with group_votes=user_votes_dict|get_item:group.id %}
-                                                    {% if group_votes %}
-                                                        {% for child in children %}
-                                                            {% with child_votes=group_votes|get_item:child.id %}
-                                                                {% if child_votes %}
-                                                                    {% with vote_choice=child_votes|get_item:time_slot.id %}
-                                                                        {% if vote_choice %}
-                                                                            <span class="text-xs text-blue-600 ml-1">
-                                                                                {{ child.name }}: {{ vote_choice|title }}
-                                                                            </span>
-                                                                        {% endif %}
-                                                                    {% endwith %}
-                                                                {% endif %}
-                                                            {% endwith %}
-                                                        {% endfor %}
-                                                    {% endif %}
-                                                {% endwith %}
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div> -->
                 </div>
             {% endfor %}
         </div>
