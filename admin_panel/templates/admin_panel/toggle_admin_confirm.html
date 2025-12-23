@@ -4,8 +4,8 @@
 {% block title %}{% trans "Modifier le statut d'administrateur" %} - {% trans "Panneau d'administration" %}{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-4">
+<div class="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-md mx-auto">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
         {% if user.is_admin %}
             {% trans "Rétrograder l'administrateur" %}
         {% else %}
@@ -13,7 +13,7 @@
         {% endif %}
     </h1>
     
-    <p class="text-gray-600 mb-6">
+    <p class="text-gray-600 mb-6 text-sm sm:text-base">
         {% if user.is_admin %}
             {% blocktrans with first=user.first_name last=user.last_name %}
             Êtes-vous sûr de vouloir retirer les droits d'administrateur à {{ first }} {{ last }} ?
@@ -27,19 +27,20 @@
     
     <form method="post" class="space-y-4">
         {% csrf_token %}
-        <div class="flex space-x-4">
-            <button type="submit" class="{% if user.is_admin %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} text-white px-6 py-2 rounded transition duration-200">
+        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            <button type="submit" class="{% if user.is_admin %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} text-white px-4 sm:px-6 py-2 rounded transition duration-200 text-sm sm:text-base w-full sm:w-auto">
                 {% if user.is_admin %}
                     {% trans "Rétrograder" %}
                 {% else %}
                     {% trans "Promouvoir" %}
                 {% endif %}
             </button>
-            <a href="{% url 'admin_panel:parents_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition duration-200">
+            <a href="{% url 'admin_panel:parents_list' %}" class="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded hover:bg-gray-600 transition duration-200 text-sm sm:text-base text-center w-full sm:w-auto">
                 {% trans "Annuler" %}
             </a>
         </div>
     </form>
 </div>
 {% endblock %}
+
 

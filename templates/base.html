@@ -49,29 +49,71 @@
     <nav class="bg-blue-600 text-white shadow-lg">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
-                <a href="{% url 'home' %}" class="text-xl font-bold">{% trans "Les Bons P'tits Loups" %}</a>
-                <div class="flex items-center space-x-4">
+                <a href="{% url 'home' %}" class="text-lg md:text-xl font-bold">{% trans "Les Bons P'tits Loups" %}</a>
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-white rounded p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <!-- Desktop menu -->
+                <div class="hidden md:flex items-center space-x-4">
                     {% if user.is_authenticated %}
-                        <span class="text-sm">{% blocktrans with first=user.first_name last=user.last_name %}Bienvenue, {{ first }} {{ last }}{% endblocktrans %}</span>
+                        <span class="text-sm hidden lg:inline">{% blocktrans with first=user.first_name last=user.last_name %}Bienvenue, {{ first }} {{ last }}{% endblocktrans %}</span>
                         {% if user.is_admin %}
-                            <a href="{% url 'admin_panel:dashboard' %}" class="hover:text-blue-200">{% trans "Panneau d'administration" %}</a>
+                            <a href="{% url 'admin_panel:dashboard' %}" class="hover:text-blue-200 text-sm">{% trans "Panneau d'administration" %}</a>
                         {% endif %}
                         {% if user.is_parent or user.is_admin %}
-                            <a href="{% url 'children:dashboard' %}" class="hover:text-blue-200">{% trans "Mes enfants" %}</a>
-                            <a href="{% url 'voting:list' %}" class="hover:text-blue-200">{% trans "Voter" %}</a>
+                            <a href="{% url 'children:dashboard' %}" class="hover:text-blue-200 text-sm">{% trans "Mes enfants" %}</a>
+                            <a href="{% url 'voting:list' %}" class="hover:text-blue-200 text-sm">{% trans "Voter" %}</a>
                         {% endif %}
-                        <a href="{% url 'accounts:change_password' %}" class="hover:text-blue-200">{% trans "Compte" %}</a>
-                        <a href="{% url 'accounts:logout' %}" class="hover:text-blue-200">{% trans "Déconnexion" %}</a>
+                        <a href="{% url 'accounts:change_password' %}" class="hover:text-blue-200 text-sm">{% trans "Compte" %}</a>
+                        <a href="{% url 'accounts:logout' %}" class="hover:text-blue-200 text-sm">{% trans "Déconnexion" %}</a>
                     {% else %}
-                        <a href="{% url 'accounts:login' %}" class="hover:text-blue-200">{% trans "Connexion" %}</a>
-                        <a href="{% url 'accounts:register' %}" class="hover:text-blue-200">{% trans "Inscription" %}</a>
+                        <a href="{% url 'accounts:login' %}" class="hover:text-blue-200 text-sm">{% trans "Connexion" %}</a>
+                        <a href="{% url 'accounts:register' %}" class="hover:text-blue-200 text-sm">{% trans "Inscription" %}</a>
                     {% endif %}
                 </div>
             </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-2 border-t border-blue-500">
+                {% if user.is_authenticated %}
+                    <div class="pt-2 text-sm text-blue-100">
+                        {% blocktrans with first=user.first_name last=user.last_name %}Bienvenue, {{ first }} {{ last }}{% endblocktrans %}
+                    </div>
+                    <div class="flex flex-col space-y-2 pt-3">
+                        {% if user.is_admin %}
+                            <a href="{% url 'admin_panel:dashboard' %}" class="hover:text-blue-200 py-2">{% trans "Panneau d'administration" %}</a>
+                        {% endif %}
+                        {% if user.is_parent or user.is_admin %}
+                            <a href="{% url 'children:dashboard' %}" class="hover:text-blue-200 py-2">{% trans "Mes enfants" %}</a>
+                            <a href="{% url 'voting:list' %}" class="hover:text-blue-200 py-2">{% trans "Voter" %}</a>
+                        {% endif %}
+                        <a href="{% url 'accounts:change_password' %}" class="hover:text-blue-200 py-2">{% trans "Compte" %}</a>
+                        <a href="{% url 'accounts:logout' %}" class="hover:text-blue-200 py-2">{% trans "Déconnexion" %}</a>
+                    </div>
+                {% else %}
+                    <div class="flex flex-col space-y-2 pt-3">
+                        <a href="{% url 'accounts:login' %}" class="hover:text-blue-200 py-2">{% trans "Connexion" %}</a>
+                        <a href="{% url 'accounts:register' %}" class="hover:text-blue-200 py-2">{% trans "Inscription" %}</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </nav>
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+            menu.classList.toggle('hidden');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        });
+    </script>
 
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}

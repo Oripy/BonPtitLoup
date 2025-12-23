@@ -20,3 +20,4 @@ def validate_pin_code(value):
             code='password_too_long',
         )
 
+

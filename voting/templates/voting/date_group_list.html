@@ -5,32 +5,32 @@
 {% block title %}{% trans "Voter sur les dates" %} - {% trans "Les Bons P'tits Loups" %}{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow-md p-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">{% trans "Groupes de dates disponibles" %}</h1>
+<div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">{% trans "Groupes de dates disponibles" %}</h1>
 
     {% if date_groups %}
         <div class="space-y-6">
             {% for group in date_groups %}
-                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition duration-200">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h2 class="text-2xl font-semibold text-gray-800">{{ group.title }}</h2>
+                <div class="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-lg transition duration-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 space-y-3 sm:space-y-0">
+                        <div class="flex-1">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-gray-800">{{ group.title }}</h2>
                             {% if group.description %}
-                                <p class="text-gray-600 mt-2">{{ group.description }}</p>
+                                <p class="text-gray-600 mt-2 text-sm sm:text-base">{{ group.description }}</p>
                             {% endif %}
-                            <p class="text-sm text-gray-500 mt-2">{% trans "Créé le" %}: {{ group.created_at|date }}</p>
+                            <p class="text-xs sm:text-sm text-gray-500 mt-2">{% trans "Créé le" %}: {{ group.created_at|date }}</p>
                         </div>
-                        <div class="flex space-x-2 items-center">
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                             {% if group.can_vote %}
-                                <a href="{% url 'voting:vote' group.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+                                <a href="{% url 'voting:vote' group.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200 text-center text-sm sm:text-base">
                                     {% trans "Voter" %}
                                 </a>
                             {% else %}
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 mr-2">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 sm:mr-2 text-center justify-center">
                                     {% trans "Fermé" %}
                                 </span>
                             {% endif %}
-                            <a href="{% url 'voting:results' group.id %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200">
+                            <a href="{% url 'voting:results' group.id %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200 text-center text-sm sm:text-base">
                                 {% trans "Voir les résultats" %}
                             </a>
                         </div>

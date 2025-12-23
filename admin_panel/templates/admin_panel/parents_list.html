@@ -4,51 +4,52 @@
 {% block title %}{% trans "Liste des parents" %} - {% trans "Panneau d'administration" %}{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow-md p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">{% trans "Liste des parents" %}</h1>
-        <a href="{% url 'admin_panel:dashboard' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition duration-200">
+<div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">{% trans "Liste des parents" %}</h1>
+        <a href="{% url 'admin_panel:dashboard' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition duration-200 text-center text-sm sm:text-base">
             {% trans "Retour au tableau de bord" %}
         </a>
     </div>
 
     {% if parents %}
-        <div class="overflow-x-auto">
+        <!-- Desktop table view -->
+        <div class="hidden lg:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom d'utilisateur" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Prénom" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Adresse e-mail" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Statut" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Enfants" %}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom d'utilisateur" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Prénom" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Adresse e-mail" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Statut" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Enfants" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for parent in parents %}
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ parent.username }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">{{ parent.first_name }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ parent.last_name }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="mailto:{{ parent.email }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">{{ parent.email }}</a>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <a href="mailto:{{ parent.email }}" class="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all">{{ parent.email }}</a>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap">
                                 {% if parent.is_admin %}
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">{% trans "Administrateur" %}</span>
                                 {% else %}
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{% trans "Parent" %}</span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-4 py-4">
                                 <div class="text-sm text-gray-900">
                                     {% if parent.children.all %}
                                         <ul class="list-disc list-inside space-y-1">
@@ -67,7 +68,7 @@
                                 </div>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex flex-col space-y-2">
                                     <form method="post" action="{% url 'admin_panel:reset_parent_password' parent.id %}" class="inline">
                                         {% csrf_token %}
@@ -96,6 +97,71 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <!-- Mobile/Tablet card view -->
+        <div class="lg:hidden space-y-4">
+            {% for parent in parents %}
+                <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                    <div class="mb-3">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ parent.first_name }} {{ parent.last_name }}</h3>
+                        <p class="text-sm text-gray-600">@{{ parent.username }}</p>
+                    </div>
+                    <div class="space-y-2 text-sm mb-4">
+                        <div>
+                            <span class="text-gray-600">{% trans "E-mail" %}:</span>
+                            <a href="mailto:{{ parent.email }}" class="text-blue-600 hover:text-blue-800 hover:underline break-all">{{ parent.email }}</a>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">{% trans "Statut" %}:</span>
+                            {% if parent.is_admin %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">{% trans "Administrateur" %}</span>
+                            {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{% trans "Parent" %}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span class="text-gray-600">{% trans "Enfants" %}:</span>
+                            {% if parent.children.all %}
+                                <ul class="list-disc list-inside space-y-1 mt-1">
+                                    {% for child in parent.children.all %}
+                                        <li class="text-gray-900">
+                                            {{ child.name }} 
+                                            <span class="text-gray-500 text-xs">
+                                                ({% trans "né le" %} {{ child.birth_date|date:"d/m/Y" }} - {{ child.age }} {% trans "ans" %})
+                                            </span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-gray-400 italic">{% trans "Aucun enfant enregistré" %}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <form method="post" action="{% url 'admin_panel:reset_parent_password' parent.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-orange-600 text-white px-3 py-2 rounded hover:bg-orange-700 transition duration-200 text-sm w-full" onclick="return confirm('{% trans "Êtes-vous sûr de vouloir réinitialiser le mot de passe à 0000 ?" %}');">
+                                {% trans "Réinitialiser mot de passe" %}
+                            </button>
+                        </form>
+                        {% if parent.id != request.user.id %}
+                            <form method="post" action="{% url 'admin_panel:toggle_admin_status' parent.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="{% if parent.is_admin %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} text-white px-3 py-2 rounded transition duration-200 text-sm w-full">
+                                    {% if parent.is_admin %}
+                                        {% trans "Rétrograder" %}
+                                    {% else %}
+                                        {% trans "Promouvoir admin" %}
+                                    {% endif %}
+                                </button>
+                            </form>
+                            <a href="{% url 'admin_panel:delete_parent_account' parent.id %}" class="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 transition duration-200 text-sm w-full text-center block">
+                                {% trans "Supprimer le compte" %}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
         
         <div class="mt-6 text-sm text-gray-600">
