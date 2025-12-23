@@ -291,7 +291,7 @@ def parents_list(request):
     """List all registered parents with their email and children"""
     parents = CustomUser.objects.prefetch_related(
         Prefetch('children', queryset=Child.objects.order_by('name'))
-    ).filter(is_admin=True, is_parent=True).order_by('last_name', 'first_name')
+    ).filter(is_parent=True).order_by('last_name', 'first_name')
     
     context = {
         'parents': parents,
