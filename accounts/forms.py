@@ -48,3 +48,48 @@ class LoginForm(forms.Form):
     username = forms.CharField(max_length=150, label=_("Nom d'utilisateur"))
     password = forms.CharField(widget=forms.PasswordInput, label=_("Mot de passe"))
 
+
+class PasswordChangeForm(forms.Form):
+    old_password = forms.CharField(
+        label=_("Ancien mot de passe"),
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=True
+    )
+    new_password1 = forms.CharField(
+        label=_("Nouveau mot de passe"),
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        validators=[validate_pin_code],
+        help_text=_("Entrez un code PIN de 4 à 8 chiffres."),
+        required=True
+    )
+    new_password2 = forms.CharField(
+        label=_("Confirmation du nouveau mot de passe"),
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        help_text=_("Entrez le même code PIN pour confirmation."),
+        required=True
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get("old_password")
+        if not self.user.check_password(old_password):
+            raise forms.ValidationError(_("L'ancien mot de passe est incorrect."))
+        return old_password
+
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get("new_password1")
+        password2 = self.cleaned_data.get("new_password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(_("Les deux nouveaux mots de passe ne correspondent pas."))
+        return password2
+
+    def save(self, commit=True):
+        password = self.cleaned_data["new_password1"]
+        self.user.set_password(password)
+        if commit:
+            self.user.save()
+        return self.user
+

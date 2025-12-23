@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext as _
-from .forms import RegistrationForm, LoginForm
+from .forms import RegistrationForm, LoginForm, PasswordChangeForm
 
 
 def register_view(request):
@@ -51,3 +51,19 @@ def logout_view(request):
     logout(request)
     messages.success(request, _('Vous avez été déconnecté avec succès.'))
     return redirect('accounts:login')
+
+
+@login_required
+def change_password_view(request):
+    """Change password view"""
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(request, _('Votre mot de passe a été modifié avec succès.'))
+            return redirect('accounts:change_password')
+    else:
+        form = PasswordChangeForm(request.user)
+    
+    return render(request, 'accounts/change_password.html', {'form': form})

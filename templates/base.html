@@ -22,6 +22,7 @@
                             <a href="{% url 'children:dashboard' %}" class="hover:text-blue-200">{% trans "Mes enfants" %}</a>
                             <a href="{% url 'voting:list' %}" class="hover:text-blue-200">{% trans "Voter" %}</a>
                         {% endif %}
+                        <a href="{% url 'accounts:change_password' %}" class="hover:text-blue-200">{% trans "Gestion du compte" %}</a>
                         <a href="{% url 'accounts:logout' %}" class="hover:text-blue-200">{% trans "Déconnexion" %}</a>
                     {% else %}
                         <a href="{% url 'accounts:login' %}" class="hover:text-blue-200">{% trans "Connexion" %}</a>
