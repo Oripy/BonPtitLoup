@@ -13,9 +13,6 @@
             {% endif %}
         </div>
         <div class="flex space-x-2">
-            <a href="{% url 'admin_panel:export_csv' date_group.pk %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200">
-                {% trans "Exporter CSV" %}
-            </a>
             <a href="{% url 'admin_panel:export_excel' date_group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
                 {% trans "Exporter Excel" %}
             </a>

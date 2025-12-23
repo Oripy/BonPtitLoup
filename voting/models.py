@@ -96,7 +96,7 @@ class DateOption(models.Model):
 class TimeSlot(models.Model):
     PERIOD_CHOICES = [
         ('morning', _('Matin')),
-        ('lunch', _('Déjeuner')),
+        ('lunch', _('Repas')),
         ('afternoon', _('Après-midi')),
     ]
     

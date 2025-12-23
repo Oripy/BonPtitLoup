@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
             name='TimeSlot',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('period', models.CharField(choices=[('morning', 'Matin'), ('lunch', 'Déjeuner'), ('afternoon', 'Après-midi')], max_length=10, verbose_name='Période')),
+                ('period', models.CharField(choices=[('morning', 'Matin'), ('lunch', 'Repas'), ('afternoon', 'Après-midi')], max_length=10, verbose_name='Période')),
                 ('date_option', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='time_slots', to='voting.dateoption', verbose_name='Option de date')),
             ],
             options={

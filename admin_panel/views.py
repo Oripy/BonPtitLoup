@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.db.models import Count, Prefetch
 from django.utils.translation import gettext as _
-import csv
 from accounts.models import CustomUser
 from children.models import Child
 from voting.models import DateGroup, DateOption, TimeSlot, Vote
@@ -120,83 +119,133 @@ def results_view(request, pk):
 
 @login_required
 @user_passes_test(is_admin)
-def export_csv(request, pk):
-    """Export voting results to CSV"""
-    date_group = get_object_or_404(DateGroup, pk=pk)
-    
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{date_group.title}_results.csv"'
-    
-    writer = csv.writer(response)
-    writer.writerow(['Date', 'Période', 'Oui', 'Non', 'Peut-être', 'Total Votes', 'Oui %', 'Non %', 'Peut-être %'])
-    
-    statistics = date_group.get_vote_statistics()
-    for stat in statistics:
-        writer.writerow([
-            str(stat['option'].date),
-            stat['time_slot'].get_period_display(),
-            stat['yes'],
-            stat['no'],
-            stat['maybe'],
-            stat['total'],
-            f"{stat['yes_percent']:.1f}%",
-            f"{stat['no_percent']:.1f}%",
-            f"{stat['maybe_percent']:.1f}%",
-        ])
-    
-    return response
-
-
-@login_required
-@user_passes_test(is_admin)
 def export_excel(request, pk):
-    """Export voting results to Excel"""
-    try:
+    """Export voting results to Excel - one tab per date, one line per child with yes votes"""
+    try:        
         from openpyxl import Workbook
-        from openpyxl.styles import Font, Alignment
+        from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+        from children.models import Child
+        from voting.models import Vote, TimeSlot
         
+        thin_border = Border(left=Side(style='thin'), 
+                     right=Side(style='thin'), 
+                     top=Side(style='thin'), 
+                     bottom=Side(style='thin'))
+
         date_group = get_object_or_404(DateGroup, pk=pk)
         
         wb = Workbook()
-        ws = wb.active
-        ws.title = "Voting Results"
+        # Remove default sheet
+        wb.remove(wb.active)
         
-        # Header
-        headers = ['Date', 'Période', 'Oui', 'Non', 'Peut-être', 'Total Votes', 'Oui %', 'Non %', 'Peut-être %']
-        ws.append(headers)
+        # Get all date options for this group
+        date_options = date_group.date_options.all().order_by('date')
         
-        # Style header
-        for cell in ws[1]:
-            cell.font = Font(bold=True)
-            cell.alignment = Alignment(horizontal='center')
-        
-        # Data
-        statistics = date_group.get_vote_statistics()
-        for stat in statistics:
-            ws.append([
-                str(stat['option'].date),
-                stat['time_slot'].get_period_display(),
-                stat['yes'],
-                stat['no'],
-                stat['maybe'],
-                stat['total'],
-                f"{stat['yes_percent']:.1f}%",
-                f"{stat['no_percent']:.1f}%",
-                f"{stat['maybe_percent']:.1f}%",
-            ])
-        
-        # Auto-adjust column widths
-        for column in ws.columns:
-            max_length = 0
-            column_letter = column[0].column_letter
-            for cell in column:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = min(max_length + 2, 50)
-            ws.column_dimensions[column_letter].width = adjusted_width
+        for date_option in date_options:
+            # Create a sheet for each date
+            date_str = date_option.date.strftime('%Y-%m-%d')
+            ws = wb.create_sheet(title=date_str)
+            
+            # Headers
+            headers1 = ['', '', 'Réservation', '','','arrivée', '', 'départ']
+            headers2 = ['#', 'Nom de l\'enfant', 'M', 'R', 'AM', 'heure', 'signature', 'heure', 'signature']
+            ws.append(headers1)
+            ws.append(headers2)
+
+            # Style header
+            for cell in ws[1]:
+                cell.font = Font(bold=True)
+
+            for cell in ws[2]:
+                cell.font = Font(bold=True)
+            
+            # Get all children who have at least one "yes" vote for this date
+            time_slots = date_option.time_slots.all()
+            children_with_yes = set()
+            
+            for time_slot in time_slots:
+                yes_votes = Vote.objects.filter(
+                    time_slot=time_slot,
+                    choice='yes'
+                ).select_related('child')
+                for vote in yes_votes:
+                    children_with_yes.add(vote.child)
+            
+            # Sort children by age (youngest first)
+            # Convert to list and sort by age (ascending = youngest first)
+            children_list = sorted(list(children_with_yes), key=lambda c: (c.birth_date.year, c.birth_date.month, c.birth_date.day), reverse=True)
+            
+            # Get votes for each time slot
+            morning_slot = time_slots.filter(period='morning').first()
+            lunch_slot = time_slots.filter(period='lunch').first()
+            afternoon_slot = time_slots.filter(period='afternoon').first()
+            
+            # Create vote lookup dictionaries
+            morning_votes = {}
+            lunch_votes = {}
+            afternoon_votes = {}
+            
+            if morning_slot:
+                for vote in Vote.objects.filter(time_slot=morning_slot, choice='yes').select_related('child'):
+                    morning_votes[vote.child.id] = True
+            
+            if lunch_slot:
+                for vote in Vote.objects.filter(time_slot=lunch_slot, choice='yes').select_related('child'):
+                    lunch_votes[vote.child.id] = True
+            
+            if afternoon_slot:
+                for vote in Vote.objects.filter(time_slot=afternoon_slot, choice='yes').select_related('child'):
+                    afternoon_votes[vote.child.id] = True
+            
+            # Add rows for each child
+            separator = False
+            offset = 0
+            for i, child in enumerate(children_list):
+                if not separator and child.age() > 5:              
+                    separator = True
+                    offset = i
+                    ws.append(['']*9)
+                    for cell in ws[ws.max_row]:
+                        cell.fill = PatternFill(start_color='D9D9D9', end_color='D9D9D9', fill_type = "solid")
+
+                child_name_with_age = f"{child.name} ({child.age()} ans)"
+                ws.append([
+                    i+1 - offset,
+                    child_name_with_age,
+                    '✓' if child.id in morning_votes else '',
+                    '✓' if child.id in lunch_votes else '',
+                    '✓' if child.id in afternoon_votes else '',
+                ])
+            
+            # Auto-adjust column widths
+            for column in ws.columns:
+                max_length = 0
+                column_letter = column[0].column_letter
+                for cell in column:
+                    try:
+                        if cell.value and len(str(cell.value)) > max_length:
+                            max_length = len(str(cell.value))
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                ws.column_dimensions[column_letter].width = adjusted_width
+            
+            ws.column_dimensions['C'].width = 3.5
+            ws.column_dimensions['D'].width = 3.5
+            ws.column_dimensions['E'].width = 3.5
+            ws.column_dimensions['F'].width = 10
+            ws.column_dimensions['G'].width = 27
+            ws.column_dimensions['H'].width = 10
+            ws.column_dimensions['I'].width = 27
+            
+            ws.merge_cells(start_row=1, start_column=3, end_row=1, end_column=5)
+            ws.merge_cells(start_row=1, start_column=6, end_row=1, end_column=7)
+            ws.merge_cells(start_row=1, start_column=8, end_row=1, end_column=9)
+
+            for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
+                for cell in row:
+                    cell.border = thin_border
+                    cell.alignment = Alignment(horizontal='center')
         
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

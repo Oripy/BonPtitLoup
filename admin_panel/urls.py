@@ -13,7 +13,6 @@ urlpatterns = [
     path('<int:pk>/edit/', views.date_group_edit, name='edit'),
     path('<int:pk>/delete/', views.date_group_delete, name='delete'),
     path('<int:pk>/results/', views.results_view, name='results'),
-    path('<int:pk>/export/csv/', views.export_csv, name='export_csv'),
     path('<int:pk>/export/excel/', views.export_excel, name='export_excel'),
 ]
 
