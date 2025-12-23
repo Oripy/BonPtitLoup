@@ -23,7 +23,7 @@
                         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                             {% if group.can_vote %}
                                 <a href="{% url 'voting:vote' group.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200 text-center text-sm sm:text-base">
-                                    {% trans "Voter" %}
+                                    {% trans "Réservations" %}
                                 </a>
                             {% else %}
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 sm:mr-2 text-center justify-center">

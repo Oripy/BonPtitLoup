@@ -34,8 +34,8 @@ msgid "Mes enfants"
 msgstr "Mes enfants"
 
 #: templates/base.html:22
-msgid "Voter"
-msgstr "Voter"
+msgid "Réservations"
+msgstr "Réservations"
 
 #: templates/base.html:24
 msgid "Déconnexion"
