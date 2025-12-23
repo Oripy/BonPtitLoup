@@ -11,8 +11,8 @@ from .forms import DateGroupForm, DateOptionFormSet
 
 
 def is_admin(user):
-    """Check if user is an admin"""
-    return user.is_authenticated and user.is_admin
+    """Check if user is an admin or superuser"""
+    return user.is_authenticated and (user.is_admin or user.is_superuser or user.is_staff)
 
 
 @login_required
