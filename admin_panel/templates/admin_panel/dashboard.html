@@ -8,6 +8,9 @@
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">{% trans "Panneau d'administration" %}</h1>
         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <a href="{% url 'admin_panel:welcome_page_edit' %}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-200 text-center text-sm sm:text-base">
+                {% trans "Modifier la page d'accueil" %}
+            </a>
             <a href="{% url 'admin_panel:parents_list' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-200 text-center text-sm sm:text-base">
                 {% trans "Liste des parents" %}
             </a>

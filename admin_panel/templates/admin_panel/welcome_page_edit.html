@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}{% trans "Modifier la page d'accueil" %} - {% trans "Les Bons P'tits Loups" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/markdown.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">{% trans "Modifier la page d'accueil" %}</h1>
+    
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Editor column -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">{% trans "Éditeur Markdown" %}</h2>
+                {{ form|crispy }}
+                <div class="mt-4">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition duration-200">
+                        {% trans "Enregistrer" %}
+                    </button>
+                    <a href="{% url 'home' %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition duration-200 ml-2">
+                        {% trans "Annuler" %}
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Preview column -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">{% trans "Aperçu" %}</h2>
+                <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 min-h-[400px]">
+                    <div class="prose prose-lg max-w-none">
+                        {{ html_content|safe }}
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">
+                    {% trans "Dernière mise à jour" %}: {{ welcome_page.updated_at|date:"d F Y à H:i" }}
+                    {% if welcome_page.updated_by %}
+                        {% blocktrans with name=welcome_page.updated_by.get_full_name %}par {{ name }}{% endblocktrans %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </form>
+    
+    <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h3 class="text-lg font-semibold text-blue-800 mb-2">{% trans "Aide Markdown" %}</h3>
+        <div class="text-sm text-blue-700 space-y-1">
+            <p><strong># Titre 1</strong> - {% trans "Titre principal" %}</p>
+            <p><strong>## Titre 2</strong> - {% trans "Sous-titre" %}</p>
+            <p><strong>**gras**</strong> - {% trans "Texte en gras" %}</p>
+            <p><strong>*italique*</strong> - {% trans "Texte en italique" %}</p>
+            <p><strong>- Item</strong> - {% trans "Liste à puces" %}</p>
+            <p><strong>[lien](url)</strong> - {% trans "Créer un lien" %}</p>
+            <p><strong>---</strong> - {% trans "Ligne horizontale" %}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

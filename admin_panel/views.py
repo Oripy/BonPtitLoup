@@ -4,10 +4,12 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.db.models import Count, Prefetch
 from django.utils.translation import gettext as _
+import markdown
 from accounts.models import CustomUser
 from children.models import Child
 from voting.models import DateGroup, DateOption, TimeSlot, Vote
-from .forms import DateGroupForm, DateOptionFormSet
+from .forms import DateGroupForm, DateOptionFormSet, WelcomePageForm
+from .models import WelcomePage
 
 
 def is_admin(user):
@@ -408,3 +410,50 @@ def delete_parent_account(request, parent_id):
         'user': user,
     }
     return render(request, 'admin_panel/delete_account_confirm.html', context)
+
+
+def welcome_page(request):
+    """Display the welcome page with Markdown content"""
+    welcome_page_obj = WelcomePage.get_instance()
+    # Convert Markdown to HTML
+    html_content = markdown.markdown(
+        welcome_page_obj.content,
+        extensions=['extra', 'codehilite', 'nl2br']
+    )
+    
+    context = {
+        'welcome_page': welcome_page_obj,
+        'html_content': html_content,
+    }
+    return render(request, 'admin_panel/welcome_page.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def welcome_page_edit(request):
+    """Edit the welcome page content"""
+    welcome_page_obj = WelcomePage.get_instance()
+    
+    if request.method == 'POST':
+        form = WelcomePageForm(request.POST, instance=welcome_page_obj)
+        if form.is_valid():
+            welcome_page_obj = form.save(commit=False)
+            welcome_page_obj.updated_by = request.user
+            welcome_page_obj.save()
+            messages.success(request, _('La page d\'accueil a été mise à jour avec succès !'))
+            return redirect('admin_panel:welcome_page_edit')
+    else:
+        form = WelcomePageForm(instance=welcome_page_obj)
+    
+    # Preview the Markdown content
+    html_content = markdown.markdown(
+        welcome_page_obj.content,
+        extensions=['extra', 'codehilite', 'nl2br']
+    )
+    
+    context = {
+        'form': form,
+        'welcome_page': welcome_page_obj,
+        'html_content': html_content,
+    }
+    return render(request, 'admin_panel/welcome_page_edit.html', context)

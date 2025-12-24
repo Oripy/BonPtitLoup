@@ -1,16 +1,20 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from admin_panel.models import WelcomePage
+import markdown
 
 
-@login_required
 def home(request):
-    """Home view that redirects based on user role"""
-    # Superusers and staff are treated as admins
-    if request.user.is_admin or request.user.is_superuser or request.user.is_staff:
-        return redirect('admin_panel:dashboard')
-    elif request.user.is_parent:
-        return redirect('children:dashboard')
-    else:
-        # If user has no role, redirect to login (they shouldn't be able to login without a role)
-        return redirect('accounts:login')
+    welcome_page_obj = WelcomePage.get_instance()
+    # Convert Markdown to HTML
+    html_content = markdown.markdown(
+        welcome_page_obj.content,
+        extensions=['extra', 'codehilite', 'nl2br']
+    )
+    
+    context = {
+        'welcome_page': welcome_page_obj,
+        'html_content': html_content,
+    }
+    return render(request, 'admin_panel/welcome_page.html', context)
 

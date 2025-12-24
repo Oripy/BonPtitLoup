@@ -2,6 +2,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 from voting.models import DateGroup, DateOption
+from .models import WelcomePage
 
 
 class DateInput(forms.DateInput):
@@ -55,4 +56,28 @@ DateOptionFormSet = inlineformset_factory(
     min_num=1,
     validate_min=True
 )
+
+
+class WelcomePageForm(forms.ModelForm):
+    class Meta:
+        model = WelcomePage
+        fields = ['content']
+        labels = {
+            'content': _('Contenu (Markdown)'),
+        }
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 20,
+                'placeholder': _('Entrez le contenu en format Markdown...')
+            }),
+        }
+        help_texts = {
+            'content': _('Vous pouvez utiliser la syntaxe Markdown pour formater le texte. Exemples:\n'
+                        '- # Titre\n'
+                        '- **gras**\n'
+                        '- *italique*\n'
+                        '- [lien](url)\n'
+                        '- - liste à puces'),
+        }
 
