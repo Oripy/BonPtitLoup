@@ -5,17 +5,18 @@ from datetime import date
 
 
 class Child(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_('Nom'))
+    first_name = models.CharField(max_length=100, verbose_name=_('Prénom'))
+    last_name = models.CharField(max_length=100, verbose_name=_('Nom'))
     birth_date = models.DateField(verbose_name=_('Date de naissance'))
     parent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='children', verbose_name=_('Parent'))
 
     class Meta:
         verbose_name = _('Enfant')
         verbose_name_plural = _('Enfants')
-        ordering = ['name']
+        ordering = ['last_name', 'first_name']
 
     def __str__(self):
-        return self.name
+        return f"{self.first_name} {self.last_name}"
 
     def age(self):
         """Calculate age in years"""

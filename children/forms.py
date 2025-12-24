@@ -20,13 +20,15 @@ class DateInput(forms.DateInput):
 class ChildForm(forms.ModelForm):
     class Meta:
         model = Child
-        fields = ['name', 'birth_date']
+        fields = ['first_name', 'last_name', 'birth_date']
         labels = {
-            'name': _('Nom'),
+            'first_name': _('Prénom'),
+            'last_name': _('Nom'),
             'birth_date': _('Date de naissance'),
         }
         widgets = {
             'birth_date': DateInput(attrs={'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 

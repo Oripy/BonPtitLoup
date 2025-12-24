@@ -67,9 +67,9 @@ class DateGroup(models.Model):
                     'yes_percent': (yes_count / total * 100) if total > 0 else 0,
                     'no_percent': (no_count / total * 100) if total > 0 else 0,
                     'maybe_percent': (maybe_count / total * 100) if total > 0 else 0,
-                    'yes_children': [vote.child.name for vote in yes_votes],
-                    'no_children': [vote.child.name for vote in no_votes],
-                    'maybe_children': [vote.child.name for vote in maybe_votes],
+                    'yes_children': [str(vote.child) for vote in yes_votes],
+                    'no_children': [str(vote.child) for vote in no_votes],
+                    'maybe_children': [str(vote.child) for vote in maybe_votes],
                 })
         return stats
 
@@ -137,5 +137,5 @@ class Vote(models.Model):
         ordering = ['-voted_at']
 
     def __str__(self):
-        child_name = self.child.name if self.child else "Unknown"
+        child_name = str(self.child) if self.child else "Unknown"
         return f"{child_name} - {self.time_slot} - {self.choice}"

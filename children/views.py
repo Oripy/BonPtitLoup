@@ -22,7 +22,7 @@ def child_create(request):
             child = form.save(commit=False)
             child.parent = request.user
             child.save()
-            messages.success(request, _('%(name)s a été ajouté avec succès !') % {'name': child.name})
+            messages.success(request, _('%(name)s a été ajouté avec succès !') % {'name': str(child)})
             return redirect('children:dashboard')
     else:
         form = ChildForm()
@@ -37,7 +37,7 @@ def child_edit(request, pk):
         form = ChildForm(request.POST, instance=child)
         if form.is_valid():
             form.save()
-            messages.success(request, _('%(name)s a été mis à jour avec succès !') % {'name': child.name})
+            messages.success(request, _('%(name)s a été mis à jour avec succès !') % {'name': str(child)})
             return redirect('children:dashboard')
     else:
         form = ChildForm(instance=child)
@@ -49,7 +49,7 @@ def child_delete(request, pk):
     """Delete a child"""
     child = get_object_or_404(Child, pk=pk, parent=request.user)
     if request.method == 'POST':
-        child_name = child.name
+        child_name = str(child)
         child.delete()
         messages.success(request, _('%(name)s a été supprimé avec succès !') % {'name': child_name})
         return redirect('children:dashboard')

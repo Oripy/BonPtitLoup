@@ -55,7 +55,7 @@
                                         <ul class="list-disc list-inside space-y-1">
                                             {% for child in parent.children.all %}
                                                 <li>
-                                                    {{ child.name }} 
+                                                    {{ child }} 
                                                     <span class="text-gray-500 text-xs">
                                                         ({% trans "né le" %} {{ child.birth_date|date:"d/m/Y" }} - {{ child.age }} {% trans "ans" %})
                                                     </span>
@@ -125,7 +125,7 @@
                                 <ul class="list-disc list-inside space-y-1 mt-1">
                                     {% for child in parent.children.all %}
                                         <li class="text-gray-900">
-                                            {{ child.name }} 
+                                            {{ child }} 
                                             <span class="text-gray-500 text-xs">
                                                 ({% trans "né le" %} {{ child.birth_date|date:"d/m/Y" }} - {{ child.age }} {% trans "ans" %})
                                             </span>

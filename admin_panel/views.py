@@ -217,7 +217,7 @@ def export_excel(request, pk):
                     for cell in ws[ws.max_row]:
                         cell.fill = PatternFill(start_color='D9D9D9', end_color='D9D9D9', fill_type = "solid")
 
-                child_name_with_age = f"{child.name} ({child.age()} ans)"
+                child_name_with_age = f"{str(child)} ({child.age()} ans)"
                 if child.id in morning_votes_y:
                     morning_vote = '✓'
                 elif child.id in morning_votes_m:
@@ -290,7 +290,7 @@ def export_excel(request, pk):
 def parents_list(request):
     """List all registered parents with their email and children"""
     parents = CustomUser.objects.prefetch_related(
-        Prefetch('children', queryset=Child.objects.order_by('name'))
+        Prefetch('children', queryset=Child.objects.order_by('last_name', 'first_name'))
     ).filter(is_parent=True).order_by('last_name', 'first_name')
     
     context = {
