@@ -364,3 +364,16 @@ def delete_parent_account(request, parent_id):
         'user': user,
     }
     return render(request, 'admin_panel/delete_account_confirm.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def children_list(request):
+    """List all children sorted by age (ascending - youngest first)"""
+    # Sort by birth_date descending (most recent = youngest = first)
+    children = Child.objects.select_related('parent').order_by('-birth_date')
+    
+    context = {
+        'children': children,
+    }
+    return render(request, 'admin_panel/children_list.html', context)
