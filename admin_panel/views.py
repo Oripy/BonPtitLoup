@@ -4,10 +4,12 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.db.models import Count, Prefetch
 from django.utils.translation import gettext as _
+import markdown
 from accounts.models import CustomUser
 from children.models import Child
 from voting.models import DateGroup, DateOption, TimeSlot, Vote
-from .forms import DateGroupForm, DateOptionFormSet
+from .forms import DateGroupForm, DateOptionFormSet, WelcomePageForm
+from .models import WelcomePage
 
 
 def is_admin(user):
@@ -137,9 +139,46 @@ def export_excel(request, pk):
         wb = Workbook()
         # Remove default sheet
         wb.remove(wb.active)
+
+        ws = wb.create_sheet(title="Résumé")
+        ws.append([date_group.title])
+        header1 = ['', 'Matin', '', '', 'Repas', '', '', 'Après-midi', '', '']
+        header2 = ['Date', 'Oui', 'Peut-être', 'Non', 'Oui', 'Peut-être', 'Non', 'Oui', 'Peut-être', 'Non']
+        ws.append(header1)
+        ws.append(header2)
         
         # Get all date options for this group
         date_options = date_group.date_options.all().order_by('date')
+
+        for date_option in date_options:
+            date_str = date_option.date.strftime('%d-%b-%Y')
+            ws.append([date_str,
+                       date_option.time_slots.filter(period='morning', votes__choice='yes').count(),
+                       date_option.time_slots.filter(period='morning', votes__choice='maybe').count(),
+                       date_option.time_slots.filter(period='morning', votes__choice='no').count(),
+                       date_option.time_slots.filter(period='lunch', votes__choice='yes').count(),
+                       date_option.time_slots.filter(period='lunch', votes__choice='maybe').count(),
+                       date_option.time_slots.filter(period='lunch', votes__choice='no').count(),
+                       date_option.time_slots.filter(period='afternoon', votes__choice='yes').count(),
+                       date_option.time_slots.filter(period='afternoon', votes__choice='maybe').count(),
+                       date_option.time_slots.filter(period='afternoon', votes__choice='no').count()
+            ])
+        
+        ws.merge_cells(start_row=2, start_column=2, end_row=2, end_column=4)
+        ws.merge_cells(start_row=2, start_column=5, end_row=2, end_column=7)
+        ws.merge_cells(start_row=2, start_column=8, end_row=2, end_column=10)
+
+        ws.column_dimensions['A'].width = 13
+
+        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
+            for cell in row:
+                cell.border = thin_border
+                cell.alignment = Alignment(horizontal='center')
+        
+        ws.cell(row=1, column=1).font = Font(bold=True, size=14)
+        for row in ws.iter_rows(min_row=2, max_row=3, min_col=1, max_col=ws.max_column):
+            for cell in row:
+                cell.font = Font(bold=True)
         
         for date_option in date_options:
             # Create a sheet for each date
@@ -148,7 +187,7 @@ def export_excel(request, pk):
             
             # Headers
             headers1 = ['', date_str, 'Réservation', '','','arrivée', '', 'départ']
-            headers2 = ['#', 'Nom de l\'enfant', 'M', 'R', 'AM', 'heure', 'signature', 'heure', 'signature']
+            headers2 = ['#', 'Nom', 'M', 'R', 'AM', 'heure', 'signature', 'heure', 'signature']
             ws.append(headers1)
             ws.append(headers2)
 
@@ -243,6 +282,13 @@ def export_excel(request, pk):
                     lunch_vote,
                     afternoon_vote,
                 ])
+
+            # Add a "Total" row under the last child row
+            total_row = ["Total", ""]
+            total_row.append(morning_slot.votes.filter(choice='yes').count())
+            total_row.append(lunch_slot.votes.filter(choice='yes').count())
+            total_row.append(afternoon_slot.votes.filter(choice='yes').count())
+            ws.append(total_row)
             
             # Auto-adjust column widths
             for column in ws.columns:
@@ -377,3 +423,50 @@ def children_list(request):
         'children': children,
     }
     return render(request, 'admin_panel/children_list.html', context)
+
+
+def welcome_page(request):
+    """Display the welcome page with Markdown content"""
+    welcome_page_obj = WelcomePage.get_instance()
+    # Convert Markdown to HTML
+    html_content = markdown.markdown(
+        welcome_page_obj.content,
+        extensions=['extra', 'codehilite', 'nl2br']
+    )
+    
+    context = {
+        'welcome_page': welcome_page_obj,
+        'html_content': html_content,
+    }
+    return render(request, 'admin_panel/welcome_page.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def welcome_page_edit(request):
+    """Edit the welcome page content"""
+    welcome_page_obj = WelcomePage.get_instance()
+    
+    if request.method == 'POST':
+        form = WelcomePageForm(request.POST, instance=welcome_page_obj)
+        if form.is_valid():
+            welcome_page_obj = form.save(commit=False)
+            welcome_page_obj.updated_by = request.user
+            welcome_page_obj.save()
+            messages.success(request, _('La page d\'accueil a été mise à jour avec succès !'))
+            return redirect('admin_panel:welcome_page_edit')
+    else:
+        form = WelcomePageForm(instance=welcome_page_obj)
+    
+    # Preview the Markdown content
+    html_content = markdown.markdown(
+        welcome_page_obj.content,
+        extensions=['extra', 'codehilite', 'nl2br']
+    )
+    
+    context = {
+        'form': form,
+        'welcome_page': welcome_page_obj,
+        'html_content': html_content,
+    }
+    return render(request, 'admin_panel/welcome_page_edit.html', context)

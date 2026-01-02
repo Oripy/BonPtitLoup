@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Page d'accueil" %} - {% trans "Les Bons P'tits Loups" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/markdown.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+    <div class="prose prose-lg max-w-none markdown-content">
+        {{ html_content|safe }}
+    </div>
+</div>
+{% endblock %}
+

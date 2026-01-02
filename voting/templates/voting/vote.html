@@ -41,10 +41,10 @@
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
-                                                <th class="ml-2 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded hover:bg-green-200 transition text-xs sm:text-sm">{% trans "Oui" %}</th>
-                                                <th class="ml-2 bg-red-100 text-red-800 px-2 sm:px-3 py-1 rounded hover:bg-red-200 transition text-xs sm:text-sm">{% trans "Non" %}</th>
-                                                <th class="ml-2 bg-yellow-100 text-yellow-800 px-2 sm:px-3 py-1 rounded hover:bg-yellow-200 transition text-xs sm:text-sm">{% trans "Peut-être" %}</th>
-                                                <th class="ml-2 bg-gray-100 text-gray-800 px-2 sm:px-3 py-1 rounded hover:bg-gray-200 transition text-xs sm:text-sm">{% trans "Effacer" %}</th>
+                                                <th class="ml-2 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded hover:bg-green-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="yes" data-child-id="{{ child.id }}">{% trans "Oui" %}</th>
+                                                <th class="ml-2 bg-red-100 text-red-800 px-2 sm:px-3 py-1 rounded hover:bg-red-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="no" data-child-id="{{ child.id }}">{% trans "Non" %}</th>
+                                                <th class="ml-2 bg-yellow-100 text-yellow-800 px-2 sm:px-3 py-1 rounded hover:bg-yellow-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="maybe" data-child-id="{{ child.id }}">{% trans "Peut-être" %}</th>
+                                                <th class="ml-2 bg-gray-100 text-gray-800 px-2 sm:px-3 py-1 rounded hover:bg-gray-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="" data-child-id="{{ child.id }}">{% trans "Pas de vote" %}</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -179,6 +179,52 @@ document.addEventListener('DOMContentLoaded', function() {
                     buttonRef.classList.add('bg-green-600', 'hover:bg-green-700');
                 }, 2000);
             }
+        });
+    });
+    
+    // Handle column header clicks to select all options in that column
+    const columnHeaders = document.querySelectorAll('.column-header');
+    
+    columnHeaders.forEach(function(header) {
+        header.addEventListener('click', function() {
+            const choiceValue = this.getAttribute('data-choice-value');
+            const childId = this.getAttribute('data-child-id');
+            
+            // Find the table that contains this header
+            const table = this.closest('table');
+            if (!table) return;
+            
+            // Find all radio buttons within this specific table for this child with the selected choice value
+            const tableRadios = table.querySelectorAll(`input[type="radio"][name^="choice_${childId}_"]`);
+            
+            // Select all radio buttons with the matching value within this table only
+            let selectedCount = 0;
+            tableRadios.forEach(function(radio) {
+                if (radio.value === choiceValue) {
+                    radio.checked = true;
+                    // Trigger change event to ensure form state is updated
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                    selectedCount++;
+                }
+            });
+            
+            // Visual feedback - briefly highlight the header
+            const originalClasses = this.className;
+            this.classList.add('ring-2', 'ring-offset-2');
+            if (choiceValue === 'yes') {
+                this.classList.add('ring-green-500');
+            } else if (choiceValue === 'no') {
+                this.classList.add('ring-red-500');
+            } else if (choiceValue === 'maybe') {
+                this.classList.add('ring-yellow-500');
+            } else {
+                this.classList.add('ring-gray-500');
+            }
+            
+            const headerRef = this;
+            setTimeout(function() {
+                headerRef.className = originalClasses;
+            }, 300);
         });
     });
 });

@@ -26,20 +26,14 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
-                                                <th class="ml-2 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded hover:bg-green-200 transition text-xs sm:text-sm">{% trans "Oui" %}</th>
-                                                <th class="ml-2 bg-red-100 text-red-800 px-2 sm:px-3 py-1 rounded hover:bg-red-200 transition text-xs sm:text-sm">{% trans "Non" %}</th>
-                                                <th class="ml-2 bg-yellow-100 text-yellow-800 px-2 sm:px-3 py-1 rounded hover:bg-yellow-200 transition text-xs sm:text-sm">{% trans "Peut-être" %}</th>
-                                                <th class="children-column hidden ml-2 bg-gray-100 text-gray-800 px-2 sm:px-3 py-1 rounded hover:bg-gray-200 transition text-xs sm:text-sm">{% trans "Enfants" %}</th>
-                                    <!-- <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
-                                    <th class="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Oui" %}</th>
-                                    <th class="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Peut-être" %}</th>
-                                    <th class="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Non" %}</th>
-                                    <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Enfants" %}</th> -->
+                                    <th class="ml-2 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded hover:bg-green-200 transition text-xs sm:text-sm">{% trans "Oui" %}</th>
+                                    <th class="ml-2 bg-red-100 text-red-800 px-2 sm:px-3 py-1 rounded hover:bg-red-200 transition text-xs sm:text-sm">{% trans "Non" %}</th>
+                                    <th class="ml-2 bg-yellow-100 text-yellow-800 px-2 sm:px-3 py-1 rounded hover:bg-yellow-200 transition text-xs sm:text-sm">{% trans "Peut-être" %}</th>
+                                    <th class="children-column hidden ml-2 bg-gray-100 text-gray-800 px-2 sm:px-3 py-1 rounded hover:bg-gray-200 transition text-xs sm:text-sm">{% trans "Enfants" %}</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                {% comment %}Order time slots: morning, lunch, afternoon{% endcomment %}
-                                {% for stat in date_option.list %}
+                                {% for stat in date_option.list|dictsortreversed:"time_slot.period" %}
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {{ stat.time_slot.get_period_display }}
