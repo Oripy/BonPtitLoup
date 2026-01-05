@@ -14,32 +14,47 @@
 
     {% if children %}
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table id="children-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Prénom" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Nom" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Date de naissance" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Âge" %}</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Parent" %}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 sortable" data-sort="first_name" data-type="text">
+                            {% trans "Prénom" %}
+                            <span class="sort-indicator ml-1">↕</span>
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 sortable" data-sort="last_name" data-type="text">
+                            {% trans "Nom" %}
+                            <span class="sort-indicator ml-1">↕</span>
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 sortable" data-sort="birth_date" data-type="date">
+                            {% trans "Date de naissance" %}
+                            <span class="sort-indicator ml-1">↕</span>
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 sortable" data-sort="age" data-type="number">
+                            {% trans "Âge" %}
+                            <span class="sort-indicator ml-1">↕</span>
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 sortable" data-sort="parent" data-type="text">
+                            {% trans "Parent" %}
+                            <span class="sort-indicator ml-1">↕</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for child in children %}
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap" data-sort-value="{{ child.first_name|lower }}">
                                 <div class="text-sm font-medium text-gray-900">{{ child.first_name }}</div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap" data-sort-value="{{ child.last_name|lower }}">
                                 <div class="text-sm font-medium text-gray-900">{{ child.last_name }}</div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap" data-sort-value="{{ child.birth_date|date:'Y-m-d' }}">
                                 <div class="text-sm text-gray-900">{{ child.birth_date|date:"d/m/Y" }}</div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap" data-sort-value="{{ child.age }}">
                                 <div class="text-sm text-gray-900">{{ child.age }} {% trans "ans" %}</div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-4 whitespace-nowrap" data-sort-value="{{ child.parent.last_name|lower }} {{ child.parent.first_name|lower }}">
                                 <div class="text-sm text-gray-900">{{ child.parent.first_name }} {{ child.parent.last_name }}</div>
                             </td>
                         </tr>
@@ -49,7 +64,7 @@
         </div>
         
         <div class="mt-6 text-sm text-gray-600">
-            <p><strong>{% trans "Total" %}:</strong> {{ children.count }} {% trans "enfant(s)" %}</p>
+            <p><strong>{% trans "Total" %}:</strong> <span id="children-count">{{ children.count }}</span> {% trans "enfant(s)" %}</p>
         </div>
     {% else %}
         <div class="text-center py-12">
@@ -57,5 +72,92 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('children-table');
+    if (!table) return;
+    
+    const tbody = table.querySelector('tbody');
+    const headers = table.querySelectorAll('.sortable');
+    let currentSort = { column: null, direction: 'asc' };
+    
+    headers.forEach(function(header, index) {
+        header.addEventListener('click', function() {
+            const column = this.getAttribute('data-sort');
+            const type = this.getAttribute('data-type');
+            
+            // Determine sort direction
+            let direction = 'asc';
+            if (currentSort.column === column && currentSort.direction === 'asc') {
+                direction = 'desc';
+            }
+            
+            // Update current sort
+            currentSort = { column: column, direction: direction };
+            
+            // Remove sort indicators from all headers
+            headers.forEach(function(h) {
+                const indicator = h.querySelector('.sort-indicator');
+                if (indicator) {
+                    indicator.textContent = '↕';
+                    indicator.classList.remove('text-blue-600', 'font-bold');
+                }
+            });
+            
+            // Update current header indicator
+            const indicator = this.querySelector('.sort-indicator');
+            if (indicator) {
+                indicator.textContent = direction === 'asc' ? '↑' : '↓';
+                indicator.classList.add('text-blue-600', 'font-bold');
+            }
+            
+            // Get all rows
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Sort rows
+            rows.sort(function(a, b) {
+                const aValue = a.querySelectorAll('td')[index].getAttribute('data-sort-value');
+                const bValue = b.querySelectorAll('td')[index].getAttribute('data-sort-value');
+                
+                let comparison = 0;
+                
+                if (type === 'number') {
+                    comparison = parseFloat(aValue) - parseFloat(bValue);
+                } else if (type === 'date') {
+                    comparison = new Date(aValue) - new Date(bValue);
+                } else {
+                    // Text comparison
+                    comparison = aValue.localeCompare(bValue, 'fr', { sensitivity: 'base' });
+                }
+                
+                return direction === 'asc' ? comparison : -comparison;
+            });
+            
+            // Reorder rows in DOM
+            rows.forEach(function(row) {
+                tbody.appendChild(row);
+            });
+        });
+    });
+});
+</script>
+
+<style>
+.sort-indicator {
+    display: inline-block;
+    font-size: 0.75em;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.sortable:hover .sort-indicator {
+    opacity: 1;
+}
+
+.sort-indicator.text-blue-600 {
+    opacity: 1;
+}
+</style>
 {% endblock %}
 
