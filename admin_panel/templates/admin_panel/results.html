@@ -23,6 +23,55 @@
             {% trans "Exporter Excel" %}
         </a>
     </div>
+    
+    <!-- Summary Table -->
+    <div class="mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">{% trans "Résumé des votes Oui" %}</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 border border-gray-300">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-300">{% trans "Date" %}</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-50 border-r border-gray-300">{% trans "Matin" %}</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-50 border-r border-gray-300">{% trans "Repas" %}</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-50">{% trans "Après-midi" %}</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% regroup statistics by option as date_stats %}
+                    {% for date_option in date_stats %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-300">
+                                {{ date_option.grouper.date|date:"l j F Y" }}
+                            </td>
+                            {% for stat in date_option.list %}
+                                {% if stat.time_slot.period == 'morning' %}
+                                    <td class="px-4 py-3 whitespace-nowrap text-center text-sm font-semibold text-green-700 border-r border-gray-300">
+                                        {{ stat.yes }}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                            {% for stat in date_option.list %}
+                                {% if stat.time_slot.period == 'lunch' %}
+                                    <td class="px-4 py-3 whitespace-nowrap text-center text-sm font-semibold text-green-700 border-r border-gray-300">
+                                        {{ stat.yes }}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                            {% for stat in date_option.list %}
+                                {% if stat.time_slot.period == 'afternoon' %}
+                                    <td class="px-4 py-3 whitespace-nowrap text-center text-sm font-semibold text-green-700">
+                                        {{ stat.yes }}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
     <div class="space-y-4 sm:space-y-6">
         {% regroup statistics by option as date_stats %}
         {% for date_option in date_stats %}
