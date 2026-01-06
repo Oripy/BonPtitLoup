@@ -35,7 +35,6 @@
                                 <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
                                 <th class="ml-2 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded hover:bg-green-200 transition text-xs sm:text-sm">{% trans "Oui" %}</th>
                                 <th class="ml-2 bg-red-100 text-red-800 px-2 sm:px-3 py-1 rounded hover:bg-red-200 transition text-xs sm:text-sm">{% trans "Non" %}</th>
-                                <th class="ml-2 bg-yellow-100 text-yellow-800 px-2 sm:px-3 py-1 rounded hover:bg-yellow-200 transition text-xs sm:text-sm">{% trans "Peut-être" %}</th>
                                 <th class="children-column hidden ml-2 bg-gray-100 text-gray-800 px-2 sm:px-3 py-1 rounded hover:bg-gray-200 transition text-xs sm:text-sm">{% trans "Enfants" %}</th>
                             </tr>
                         </thead>
@@ -51,9 +50,6 @@
                                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                         <span class="text-sm font-medium text-red-700">{{ stat.no }}</span>
                                     </td>
-                                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm font-medium text-yellow-700">{{ stat.maybe }}</span>
-                                    </td>
                                     <td class="children-column hidden px-3 sm:px-6 py-4 text-sm text-gray-600">
                                         <div class="flex flex-col">
                                             {% if stat.yes_children %}
@@ -64,11 +60,6 @@
                                             {% if stat.no_children %}
                                                 <div class="mb-1">
                                                     <span class="font-medium text-red-700">{% trans "Non" %}:</span> {{ stat.no_children|join:', ' }}
-                                                </div>
-                                            {% endif %}
-                                            {% if stat.maybe_children %}
-                                                <div class="mb-1">
-                                                    <span class="font-medium text-yellow-700">{% trans "Peut-être" %}:</span> {{ stat.maybe_children|join:', ' }}
                                                 </div>
                                             {% endif %}
                                         </div>

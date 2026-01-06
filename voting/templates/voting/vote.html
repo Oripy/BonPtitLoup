@@ -43,7 +43,6 @@
                                                 <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{% trans "Période" %}</th>
                                                 <th class="ml-2 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded hover:bg-green-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="yes" data-child-id="{{ child.id }}">{% trans "Oui" %}</th>
                                                 <th class="ml-2 bg-red-100 text-red-800 px-2 sm:px-3 py-1 rounded hover:bg-red-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="no" data-child-id="{{ child.id }}">{% trans "Non" %}</th>
-                                                <th class="ml-2 bg-yellow-100 text-yellow-800 px-2 sm:px-3 py-1 rounded hover:bg-yellow-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="maybe" data-child-id="{{ child.id }}">{% trans "Peut-être" %}</th>
                                                 <th class="ml-2 bg-gray-100 text-gray-800 px-2 sm:px-3 py-1 rounded hover:bg-gray-200 transition text-xs sm:text-sm cursor-pointer column-header" data-choice-value="" data-child-id="{{ child.id }}">{% trans "Pas de vote" %}</th>
                                             </tr>
                                         </thead>
@@ -70,15 +69,6 @@
                                                                         {% if child_votes|get_item:time_slot.id == 'no' %}checked{% endif %}
                                                                     {% endwith %}
                                                                     class="w-4 h-4 text-red-600">
-                                                        </label>
-                                                    </td>
-                                                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
-                                                        <label class="flex items-center justify-center cursor-pointer">
-                                                            <input type="radio" name="choice_{{ child.id }}_{{ time_slot.id }}" value="maybe"
-                                                                    {% with child_votes=existing_votes|get_item:child.id %}
-                                                                        {% if child_votes|get_item:time_slot.id == 'maybe' %}checked{% endif %}
-                                                                    {% endwith %}
-                                                                    class="w-4 h-4 text-yellow-600">
                                                         </label>
                                                     </td>
                                                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
@@ -215,8 +205,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.add('ring-green-500');
             } else if (choiceValue === 'no') {
                 this.classList.add('ring-red-500');
-            } else if (choiceValue === 'maybe') {
-                this.classList.add('ring-yellow-500');
             } else {
                 this.classList.add('ring-gray-500');
             }

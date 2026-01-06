@@ -142,8 +142,8 @@ def export_excel(request, pk):
 
         ws = wb.create_sheet(title="Résumé")
         ws.append([date_group.title])
-        header1 = ['', 'Matin', '', '', 'Repas', '', '', 'Après-midi', '', '']
-        header2 = ['Date', 'Oui', 'Peut-être', 'Non', 'Oui', 'Peut-être', 'Non', 'Oui', 'Peut-être', 'Non']
+        header1 = ['', 'Matin', '', 'Repas', '', 'Après-midi', '']
+        header2 = ['Date', 'Oui', 'Non', 'Oui', 'Non', 'Oui', 'Non']
         ws.append(header1)
         ws.append(header2)
         
@@ -154,19 +154,16 @@ def export_excel(request, pk):
             date_str = date_option.date.strftime('%d-%b-%Y')
             ws.append([date_str,
                        date_option.time_slots.filter(period='morning', votes__choice='yes').count(),
-                       date_option.time_slots.filter(period='morning', votes__choice='maybe').count(),
                        date_option.time_slots.filter(period='morning', votes__choice='no').count(),
                        date_option.time_slots.filter(period='lunch', votes__choice='yes').count(),
-                       date_option.time_slots.filter(period='lunch', votes__choice='maybe').count(),
                        date_option.time_slots.filter(period='lunch', votes__choice='no').count(),
                        date_option.time_slots.filter(period='afternoon', votes__choice='yes').count(),
-                       date_option.time_slots.filter(period='afternoon', votes__choice='maybe').count(),
                        date_option.time_slots.filter(period='afternoon', votes__choice='no').count()
             ])
         
-        ws.merge_cells(start_row=2, start_column=2, end_row=2, end_column=4)
-        ws.merge_cells(start_row=2, start_column=5, end_row=2, end_column=7)
-        ws.merge_cells(start_row=2, start_column=8, end_row=2, end_column=10)
+        ws.merge_cells(start_row=2, start_column=2, end_row=2, end_column=3)
+        ws.merge_cells(start_row=2, start_column=4, end_row=2, end_column=5)
+        ws.merge_cells(start_row=2, start_column=6, end_row=2, end_column=7)
 
         ws.column_dimensions['A'].width = 13
 
@@ -205,7 +202,7 @@ def export_excel(request, pk):
             for time_slot in time_slots:
                 yes_votes = Vote.objects.filter(
                     time_slot=time_slot,
-                    choice__in=['yes', 'maybe']
+                    choice='yes'
                 ).select_related('child')
                 for vote in yes_votes:
                     children_with_yes.add(vote.child)
@@ -223,27 +220,18 @@ def export_excel(request, pk):
             morning_votes_y = {}
             lunch_votes_y = {}
             afternoon_votes_y = {}
-            morning_votes_m = {}
-            lunch_votes_m = {}
-            afternoon_votes_m = {}
 
             if morning_slot:
                 for vote in Vote.objects.filter(time_slot=morning_slot, choice='yes').select_related('child'):
                     morning_votes_y[vote.child.id] = True
-                for vote in Vote.objects.filter(time_slot=morning_slot, choice='maybe').select_related('child'):
-                    morning_votes_m[vote.child.id] = True
             
             if lunch_slot:
                 for vote in Vote.objects.filter(time_slot=lunch_slot, choice='yes').select_related('child'):
                     lunch_votes_y[vote.child.id] = True
-                for vote in Vote.objects.filter(time_slot=lunch_slot, choice='maybe').select_related('child'):
-                    lunch_votes_m[vote.child.id] = True
             
             if afternoon_slot:
                 for vote in Vote.objects.filter(time_slot=afternoon_slot, choice='yes').select_related('child'):
                     afternoon_votes_y[vote.child.id] = True
-                for vote in Vote.objects.filter(time_slot=afternoon_slot, choice='maybe').select_related('child'):
-                    afternoon_votes_m[vote.child.id] = True
             
             # Add rows for each child
             separator = False
@@ -257,24 +245,9 @@ def export_excel(request, pk):
                         cell.fill = PatternFill(start_color='D9D9D9', end_color='D9D9D9', fill_type = "solid")
 
                 child_name_with_age = f"{str(child)} ({child.age()} ans)"
-                if child.id in morning_votes_y:
-                    morning_vote = '✓'
-                elif child.id in morning_votes_m:
-                    morning_vote = '?'
-                else:
-                    morning_vote = ''
-                if child.id in lunch_votes_y:
-                    lunch_vote = '✓'
-                elif child.id in lunch_votes_m:
-                    lunch_vote = '?'
-                else:
-                    lunch_vote = ''
-                if child.id in afternoon_votes_y:
-                    afternoon_vote = '✓'
-                elif child.id in afternoon_votes_m:
-                    afternoon_vote = '?'
-                else:
-                    afternoon_vote = ''
+                morning_vote = '✓' if child.id in morning_votes_y else ''
+                lunch_vote = '✓' if child.id in lunch_votes_y else ''
+                afternoon_vote = '✓' if child.id in afternoon_votes_y else ''
                 ws.append([
                     i+1 - offset,
                     child_name_with_age,
