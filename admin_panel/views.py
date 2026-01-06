@@ -183,8 +183,8 @@ def export_excel(request, pk):
             ws = wb.create_sheet(title=date_str)
             
             # Headers
-            headers1 = ['', date_str, 'Réservation', '','','arrivée', '', 'départ']
-            headers2 = ['#', 'Nom', 'M', 'R', 'AM', 'heure', 'signature', 'heure', 'signature']
+            headers1 = ['', '', '', date_str, 'Réservation', '','','arrivée', '', 'départ']
+            headers2 = ['', '', '#', 'Nom', 'M', 'R', 'AM', 'heure', 'signature', 'heure', 'signature']
             ws.append(headers1)
             ws.append(headers2)
 
@@ -240,15 +240,20 @@ def export_excel(request, pk):
                 if not separator and child.age() > 5:              
                     separator = True
                     offset = i
-                    ws.append(['']*9)
+                    ws.append(['']*len(headers1))
                     for cell in ws[ws.max_row]:
                         cell.fill = PatternFill(start_color='D9D9D9', end_color='D9D9D9', fill_type = "solid")
+                    if i > 0:
+                        ws.merge_cells(start_row=3, start_column=1, end_row=ws.max_row-1, end_column=1)
 
                 child_name_with_age = f"{str(child)} ({child.age()} ans)"
                 morning_vote = '✓' if child.id in morning_votes_y else ''
                 lunch_vote = '✓' if child.id in lunch_votes_y else ''
                 afternoon_vote = '✓' if child.id in afternoon_votes_y else ''
+                supervision_rate = (i+1)*1/8 if child.age() <= 5 else (i+1-offset)*1/12
                 ws.append([
+                    '-6 ans' if child.age() <= 5 else '+6 ans',
+                    f'{supervision_rate:.2f}',
                     i+1 - offset,
                     child_name_with_age,
                     morning_vote,
@@ -256,8 +261,11 @@ def export_excel(request, pk):
                     afternoon_vote,
                 ])
 
+            if offset < len(children_list):
+                ws.merge_cells(start_row=offset+4, start_column=1, end_row=ws.max_row, end_column=1)
+
             # Add a "Total" row under the last child row
-            total_row = ["Total", ""]
+            total_row = ["Total", "", "",""]
             total_row.append(morning_slot.votes.filter(choice='yes').count())
             total_row.append(lunch_slot.votes.filter(choice='yes').count())
             total_row.append(afternoon_slot.votes.filter(choice='yes').count())
@@ -276,22 +284,22 @@ def export_excel(request, pk):
                 adjusted_width = min(max_length + 2, 50)
                 ws.column_dimensions[column_letter].width = adjusted_width
             
-            ws.column_dimensions['C'].width = 3.5
-            ws.column_dimensions['D'].width = 3.5
             ws.column_dimensions['E'].width = 3.5
-            ws.column_dimensions['F'].width = 10
-            ws.column_dimensions['G'].width = 27
+            ws.column_dimensions['F'].width = 3.5
+            ws.column_dimensions['G'].width = 3.5
             ws.column_dimensions['H'].width = 10
             ws.column_dimensions['I'].width = 27
+            ws.column_dimensions['J'].width = 10
+            ws.column_dimensions['K'].width = 27
             
-            ws.merge_cells(start_row=1, start_column=3, end_row=1, end_column=5)
-            ws.merge_cells(start_row=1, start_column=6, end_row=1, end_column=7)
+            ws.merge_cells(start_row=1, start_column=5, end_row=1, end_column=7)
             ws.merge_cells(start_row=1, start_column=8, end_row=1, end_column=9)
+            ws.merge_cells(start_row=1, start_column=10, end_row=1, end_column=11)
 
             for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
                 for cell in row:
                     cell.border = thin_border
-                    cell.alignment = Alignment(horizontal='center')
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
         
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
