@@ -15,6 +15,7 @@ class DateGroup(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_date_groups', verbose_name=_('Créé par'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Date de création'))
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active', verbose_name=_('Statut'))
+    vote_closing_date = models.DateField(blank=True, null=True, verbose_name=_('Date de fermeture des votes'))
     
     class Meta:
         verbose_name = _('Groupe de dates')

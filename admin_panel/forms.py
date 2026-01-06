@@ -22,16 +22,18 @@ class DateInput(forms.DateInput):
 class DateGroupForm(forms.ModelForm):
     class Meta:
         model = DateGroup
-        fields = ['title', 'description', 'status']
+        fields = ['title', 'description', 'status', 'vote_closing_date']
         labels = {
             'title': _('Titre'),
             'description': _('Description'),
             'status': _('Statut'),
+            'vote_closing_date': _('Date de fermeture des votes'),
         }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'status': forms.Select(attrs={'class': 'form-control'}),
+            'vote_closing_date': DateInput(attrs={'class': 'form-control'}),
         }
 
 

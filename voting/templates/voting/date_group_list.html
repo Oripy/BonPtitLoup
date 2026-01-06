@@ -18,7 +18,12 @@
                             {% if group.description %}
                                 <p class="text-gray-600 mt-2 text-sm sm:text-base">{{ group.description }}</p>
                             {% endif %}
-                            <p class="text-xs sm:text-sm text-gray-500 mt-2">{% trans "Créé le" %}: {{ group.created_at|date }}</p>
+                            <div class="text-xs sm:text-sm text-gray-500 mt-2 space-y-1">
+                                <p>{% trans "Créé le" %}: {{ group.created_at|date }}</p>
+                                {% if group.vote_closing_date %}
+                                    <p class="font-semibold text-orange-600">{% trans "Date de fermeture des votes" %}: {{ group.vote_closing_date|date:"l j F Y" }}</p>
+                                {% endif %}
+                            </div>
                         </div>
                         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                             {% if group.can_vote %}

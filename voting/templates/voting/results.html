@@ -7,7 +7,14 @@
 <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
     <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">{% trans "Résultats du vote" %}: {{ date_group.title }}</h1>
     {% if date_group.description %}
-        <p class="text-gray-600 mb-6 text-sm sm:text-base">{{ date_group.description }}</p>
+        <p class="text-gray-600 mb-4 text-sm sm:text-base">{{ date_group.description }}</p>
+    {% endif %}
+    {% if date_group.vote_closing_date %}
+        <div class="bg-orange-50 border-l-4 border-orange-400 p-3 mb-6">
+            <p class="text-sm sm:text-base text-orange-800">
+                <strong>{% trans "Date de fermeture des votes" %}:</strong> {{ date_group.vote_closing_date|date:"l j F Y" }}
+            </p>
+        </div>
     {% endif %}
 
     {% if statistics %}
