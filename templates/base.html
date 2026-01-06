@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -50,7 +51,9 @@
     <nav class="bg-blue-600 text-white shadow-lg">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
-                <a href="{% url 'home' %}" class="text-lg md:text-xl font-bold">{% trans "Les Bons P'tits Loups" %}</a>
+                <a href="{% url 'home' %}" class="flex items-center">
+                    <img src="{% static 'images/logo.png' %}" alt="{% trans 'Les Bons P\'tits Loups' %}" class="h-20 w-auto md:h-12" />
+                </a>
                 <!-- Mobile menu button -->
                 <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-white rounded p-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
