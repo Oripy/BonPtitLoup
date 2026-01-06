@@ -35,7 +35,19 @@ class DateGroup(models.Model):
     
     def can_vote(self):
         """Check if voting is allowed for this date group"""
-        return self.status == 'active'
+        from django.utils import timezone
+        
+        # Must be active status
+        if self.status != 'active':
+            return False
+        
+        # If closing date is set, check if it has passed
+        if self.vote_closing_date:
+            today = timezone.now().date()
+            if today > self.vote_closing_date:
+                return False
+        
+        return True
 
     def get_total_votes(self):
         """Get total number of votes for this date group"""
@@ -68,9 +80,9 @@ class DateGroup(models.Model):
                     'yes_percent': (yes_count / total * 100) if total > 0 else 0,
                     'no_percent': (no_count / total * 100) if total > 0 else 0,
                     'maybe_percent': (maybe_count / total * 100) if total > 0 else 0,
-                    'yes_children': [str(vote.child) for vote in yes_votes],
-                    'no_children': [str(vote.child) for vote in no_votes],
-                    'maybe_children': [str(vote.child) for vote in maybe_votes],
+                    'yes_children': [str(vote.child) for vote in yes_votes.order_by('child__last_name', 'child__first_name')],
+                    'no_children': [str(vote.child) for vote in no_votes.order_by('child__last_name', 'child__first_name')],
+                    'maybe_children': [str(vote.child) for vote in maybe_votes.order_by('child__last_name', 'child__first_name')],
                 })
         return stats
 

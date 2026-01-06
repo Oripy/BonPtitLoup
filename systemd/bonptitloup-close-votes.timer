@@ -1,0 +1,17 @@
+[Unit]
+Description=BonPtitLoup - Close Expired Votes Timer
+Requires=bonptitloup-close-votes.service
+
+[Timer]
+# Run daily at midnight
+OnCalendar=daily
+# Run at 00:00:00
+OnCalendar=*-*-* 00:00:00
+# If the system was off, run immediately when it comes back online
+Persistent=true
+# Add some randomization to avoid system load spikes (0-300 seconds)
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
+

@@ -1,0 +1,17 @@
+[Unit]
+Description=BonPtitLoup - Close Expired Votes
+After=network.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/BonPtitLoup
+Environment="PATH=/path/to/BonPtitLoup/venv/bin"
+ExecStart=/path/to/BonPtitLoup/venv/bin/python /path/to/BonPtitLoup/manage.py close_expired_votes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

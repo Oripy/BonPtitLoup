@@ -103,12 +103,12 @@
                                         <div class="flex flex-col">
                                             {% if stat.yes_children %}
                                                 <div class="mb-1">
-                                                    <span class="font-medium text-green-700">{% trans "Oui" %}:</span> {{ stat.yes_children|join:', ' }}
+                                                    <span class="font-medium text-green-700">{% trans "Oui" %}:</span> {{ stat.yes_children|join:'<br />' }}
                                                 </div>
                                             {% endif %}
                                             {% if stat.no_children %}
                                                 <div class="mb-1">
-                                                    <span class="font-medium text-red-700">{% trans "Non" %}:</span> {{ stat.no_children|join:', ' }}
+                                                    <span class="font-medium text-red-700">{% trans "Non" %}:</span> {{ stat.no_children|join:'<br />' }}
                                                 </div>
                                             {% endif %}
                                         </div>

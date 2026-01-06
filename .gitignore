@@ -14,3 +14,5 @@
 __pycache__/
 venv/
 local_settings.py
+.DS_Store
+*.xcf
