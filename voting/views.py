@@ -118,9 +118,16 @@ def results_view(request, group_id):
     """View voting results for a date group"""
     date_group = get_object_or_404(DateGroup, pk=group_id)
     statistics = date_group.get_vote_statistics()
+    children = Child.objects.filter(parent=request.user)
+    user_votes = Vote.objects.filter(
+        child__in=children,
+        time_slot__date_option__date_group=date_group
+    ).select_related('child', 'time_slot', 'time_slot__date_option')
     
     context = {
         'date_group': date_group,
         'statistics': statistics,
+        'children': children,
+        'user_votes': user_votes,
     }
     return render(request, 'voting/results.html', context)
