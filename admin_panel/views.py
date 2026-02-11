@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Count, Prefetch
 from django.utils.translation import gettext as _
 import markdown
@@ -117,6 +117,43 @@ def results_view(request, pk):
         'statistics': statistics,
     }
     return render(request, 'admin_panel/results.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def toggle_vote(request, vote_id):
+    """Toggle a child's vote between yes and no for a specific time slot"""
+    vote = get_object_or_404(Vote, pk=vote_id)
+    date_group = vote.time_slot.date_option.date_group
+
+    if request.method == 'POST':
+        # Toggle choice
+        if vote.choice == 'yes':
+            vote.choice = 'no'
+        elif vote.choice == 'no':
+            vote.choice = 'yes'
+        vote.save()
+
+        # If this is an AJAX request, return JSON to avoid full page reload
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse(
+                {
+                    'status': 'ok',
+                    'new_choice': vote.choice,
+                    'vote_id': vote.id,
+                }
+            )
+
+        # Fallback for non-AJAX requests
+        messages.success(
+            request,
+            _('Le vote de %(child)s pour le créneau %(timeslot)s a été mis à jour.') % {
+                'child': str(vote.child),
+                'timeslot': str(vote.time_slot),
+            }
+        )
+
+    return redirect('admin_panel:results', pk=date_group.pk)
 
 
 @login_required

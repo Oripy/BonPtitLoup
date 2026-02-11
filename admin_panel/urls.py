@@ -16,6 +16,7 @@ urlpatterns = [
     path('<int:pk>/edit/', views.date_group_edit, name='edit'),
     path('<int:pk>/delete/', views.date_group_delete, name='delete'),
     path('<int:pk>/results/', views.results_view, name='results'),
+    path('votes/<int:vote_id>/toggle/', views.toggle_vote, name='toggle_vote'),
     path('<int:pk>/export/excel/', views.export_excel, name='export_excel'),
 ]
 

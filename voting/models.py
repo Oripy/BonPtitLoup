@@ -83,6 +83,9 @@ class DateGroup(models.Model):
                     'yes_children': [str(vote.child) for vote in yes_votes.order_by('child__last_name', 'child__first_name')],
                     'no_children': [str(vote.child) for vote in no_votes.order_by('child__last_name', 'child__first_name')],
                     'maybe_children': [str(vote.child) for vote in maybe_votes.order_by('child__last_name', 'child__first_name')],
+                    # Expose vote objects for admin interactions
+                    'yes_votes': yes_votes.order_by('child__last_name', 'child__first_name'),
+                    'no_votes': no_votes.order_by('child__last_name', 'child__first_name'),
                 })
         return stats
 
