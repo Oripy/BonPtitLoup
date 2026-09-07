@@ -68,12 +68,15 @@ class DateGroup(models.Model):
                 yes_count = yes_votes.count()
                 no_count = no_votes.count()
                 maybe_count = maybe_votes.count()
+                yes_under_six = sum(vote.child.age() < 6 for vote in yes_votes)
                 total = yes_count + no_count + maybe_count
                 
                 stats.append({
                     'option': option,
                     'time_slot': time_slot,
                     'yes': yes_count,
+                    'yes_under_six': yes_under_six,
+                    'yes_over_six': yes_count - yes_under_six,
                     'no': no_count,
                     'maybe': maybe_count,
                     'total': total,
