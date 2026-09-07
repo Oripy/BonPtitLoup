@@ -53,3 +53,7 @@ msgstr "Inscription"
 msgid "Tous droits réservés."
 msgstr "Tous droits réservés."
 
+#: accounts/templates/accounts/login.html
+msgid "Votre mot de passe est un code composé de 4 à 8 chiffres. Contactez-nous pour le réinitialiser si besoin."
+msgstr "Votre mot de passe est un code composé de 4 à 8 chiffres. Contactez-nous pour le réinitialiser si besoin."
+

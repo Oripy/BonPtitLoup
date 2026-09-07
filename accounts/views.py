@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from .forms import RegistrationForm, LoginForm, PasswordChangeForm
+from .models import CustomUser
 
 
 def register_view(request):
@@ -31,9 +32,16 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
+            identifier = form.cleaned_data.get('identifier')
             password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
+            account = CustomUser.objects.filter(username=identifier).first()
+            if account is None:
+                account = CustomUser.objects.filter(email__iexact=identifier).first()
+            user = authenticate(
+                request,
+                username=account.username if account else None,
+                password=password,
+            )
             if user is not None:
                 login(request, user)
                 return redirect('home')

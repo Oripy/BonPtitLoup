@@ -10,6 +10,9 @@
     <form method="post" class="space-y-4">
         {% csrf_token %}
         {{ form|crispy }}
+        <p class="text-sm text-gray-600">
+            {% trans "Votre mot de passe est un code composé de 4 à 8 chiffres. Contactez-nous pour le réinitialiser si besoin." %}
+        </p>
         <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200">
             {% trans "Se connecter" %}
         </button>
@@ -19,4 +22,3 @@
     </p>
 </div>
 {% endblock %}
-
