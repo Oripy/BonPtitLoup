@@ -22,18 +22,35 @@ class DateInput(forms.DateInput):
 class DateGroupForm(forms.ModelForm):
     class Meta:
         model = DateGroup
-        fields = ['title', 'description', 'status', 'vote_closing_date']
+        fields = [
+            'title', 'description', 'status', 'vote_closing_date',
+            'restrict_children_under_6', 'max_children_under_6',
+            'restrict_children_over_6', 'max_children_over_6',
+            'restrict_total_children', 'max_total_children'
+        ]
         labels = {
             'title': _('Titre'),
             'description': _('Description'),
             'status': _('Statut'),
             'vote_closing_date': _('Date de fermeture des votes'),
+            'restrict_children_under_6': _('Limiter le nombre d\'enfants de moins de 6 ans'),
+            'max_children_under_6': _('Nombre maximum d\'enfants < 6 ans'),
+            'restrict_children_over_6': _('Limiter le nombre d\'enfants de 6 ans ou plus'),
+            'max_children_over_6': _('Nombre maximum d\'enfants >= 6 ans'),
+            'restrict_total_children': _('Limiter le nombre total d\'enfants'),
+            'max_total_children': _('Nombre maximum total d\'enfants'),
         }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'vote_closing_date': DateInput(attrs={'class': 'form-control'}),
+            'restrict_children_under_6': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'max_children_under_6': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'restrict_children_over_6': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'max_children_over_6': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'restrict_total_children': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'max_total_children': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }
 
 

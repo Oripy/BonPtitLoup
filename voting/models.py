@@ -17,6 +17,14 @@ class DateGroup(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active', verbose_name=_('Statut'))
     vote_closing_date = models.DateField(blank=True, null=True, verbose_name=_('Date de fermeture des votes'))
     
+    # Restrictions
+    restrict_children_under_6 = models.BooleanField(default=False, verbose_name=_('Limiter enfants < 6 ans'))
+    max_children_under_6 = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Max enfants < 6 ans'))
+    restrict_children_over_6 = models.BooleanField(default=False, verbose_name=_('Limiter enfants >= 6 ans'))
+    max_children_over_6 = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Max enfants >= 6 ans'))
+    restrict_total_children = models.BooleanField(default=False, verbose_name=_('Limiter total enfants'))
+    max_total_children = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Max total enfants'))
+    
     class Meta:
         verbose_name = _('Groupe de dates')
         verbose_name_plural = _('Groupes de dates')
@@ -135,6 +143,57 @@ class TimeSlot(models.Model):
     def __str__(self):
         period_display = dict(self.PERIOD_CHOICES).get(self.period, self.period)
         return f"{self.date_option} - {period_display}"
+    
+    def get_yes_votes_by_age_group(self):
+        """Get count of 'yes' votes grouped by age (under 6, over 6)"""
+        yes_votes = self.votes.filter(choice='yes').select_related('child')
+        under_six = sum(1 for vote in yes_votes if vote.child.age() < 6)
+        over_six = sum(1 for vote in yes_votes if vote.child.age() >= 6)
+        return {
+            'under_6': under_six,
+            'over_6': over_six,
+            'total': under_six + over_six
+        }
+    
+    def check_restrictions(self, child_to_add=None):
+        """
+        Check if restrictions are met for 'yes' votes.
+        Returns: {'valid': bool, 'errors': [list of error messages]}
+        If child_to_add is provided, checks if adding this child would violate restrictions.
+        """
+        date_group = self.date_option.date_group
+        errors = []
+        
+        counts = self.get_yes_votes_by_age_group()
+        
+        # Check if we need to account for a child to be added
+        if child_to_add:
+            if child_to_add.age() < 6:
+                counts['under_6'] += 1
+            else:
+                counts['over_6'] += 1
+            counts['total'] += 1
+        
+        # Check children under 6 restriction
+        if date_group.restrict_children_under_6 and date_group.max_children_under_6:
+            if counts['under_6'] > date_group.max_children_under_6:
+                errors.append(_('Limite d\'enfants de moins de 6 ans dépassée (max: %(max)d)') % {'max': date_group.max_children_under_6})
+        
+        # Check children over 6 restriction
+        if date_group.restrict_children_over_6 and date_group.max_children_over_6:
+            if counts['over_6'] > date_group.max_children_over_6:
+                errors.append(_('Limite d\'enfants de 6 ans ou plus dépassée (max: %(max)d)') % {'max': date_group.max_children_over_6})
+        
+        # Check total children restriction
+        if date_group.restrict_total_children and date_group.max_total_children:
+            if counts['total'] > date_group.max_total_children:
+                errors.append(_('Limite du nombre total d\'enfants dépassée (max: %(max)d)') % {'max': date_group.max_total_children})
+        
+        return {
+            'valid': len(errors) == 0,
+            'errors': errors,
+            'counts': counts
+        }
 
 
 class Vote(models.Model):

@@ -57,6 +57,7 @@ def vote_view(request, group_id):
         votes_created = 0
         votes_updated = 0
         votes_deleted = 0
+        errors = []
         
         for child in children:
             for option in date_options:
@@ -65,6 +66,21 @@ def vote_view(request, group_id):
                     choice = request.POST.get(choice_key, '')
                     
                     if choice in ['yes', 'no', 'maybe']:
+                        # If vote is 'yes', check restrictions
+                        if choice == 'yes':
+                            # Get current vote if it exists
+                            existing_vote = Vote.objects.filter(
+                                time_slot=time_slot,
+                                child=child
+                            ).first()
+                            
+                            # Only check restrictions if vote is changing TO 'yes'
+                            if not existing_vote or existing_vote.choice != 'yes':
+                                check_result = time_slot.check_restrictions(child_to_add=child)
+                                if not check_result['valid']:
+                                    errors.extend(check_result['errors'])
+                                    continue
+                        
                         vote, created = Vote.objects.update_or_create(
                             time_slot=time_slot,
                             child=child,
@@ -82,6 +98,29 @@ def vote_view(request, group_id):
                         ).delete()[0]
                         if deleted > 0:
                             votes_deleted += 1
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            # Re-render the form with existing votes
+            existing_votes = {}
+            for child in children:
+                child_votes = {}
+                votes = Vote.objects.filter(
+                    child=child,
+                    time_slot__date_option__date_group=date_group
+                ).select_related('time_slot', 'time_slot__date_option')
+                for vote in votes:
+                    child_votes[vote.time_slot.id] = vote.choice
+                existing_votes[child.id] = child_votes
+            
+            context = {
+                'date_group': date_group,
+                'date_options': date_options,
+                'children': children,
+                'existing_votes': existing_votes,
+            }
+            return render(request, 'voting/vote.html', context)
         
         if votes_created > 0 or votes_updated > 0:
             messages.success(request, _('Vos votes ont été enregistrés avec succès !'))
