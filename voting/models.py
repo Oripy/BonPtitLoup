@@ -24,6 +24,10 @@ class DateGroup(models.Model):
     max_children_over_6 = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Max enfants >= 6 ans'))
     restrict_total_children = models.BooleanField(default=False, verbose_name=_('Limiter total enfants'))
     max_total_children = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Max total enfants'))
+    restrict_days_under_6 = models.BooleanField(default=False, verbose_name=_('Limiter nombre de jours réservés par enfant < 6 ans'))
+    max_days_under_6 = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Max nombre de jours réservés par enfant < 6 ans'))
+    restrict_days_over_6 = models.BooleanField(default=False, verbose_name=_('Limiter nombre de jours réservés par enfant >= 6 ans'))
+    max_days_over_6 = models.PositiveIntegerField(blank=True, null=True, verbose_name=_('Max nombre de jours réservés par enfant >= 6 ans'))
     
     class Meta:
         verbose_name = _('Groupe de dates')
@@ -100,6 +104,18 @@ class DateGroup(models.Model):
                 })
         return stats
 
+    def get_yes_days_by_child(self, child):
+        """Get count of days with at least one 'yes' for a given child"""
+        options = []
+        for option in self.date_options.all():
+            option_yes = False
+            for time_slot in option.time_slots.all():
+                if time_slot.votes.filter(child=child, choice='yes').exists():
+                    option_yes = True
+                    break
+            if option_yes:
+                options.append(option)
+        return options
 
 class DateOption(models.Model):
     date_group = models.ForeignKey(DateGroup, on_delete=models.CASCADE, related_name='date_options', verbose_name=_('Groupe de dates'))
@@ -188,6 +204,22 @@ class TimeSlot(models.Model):
         if date_group.restrict_total_children and date_group.max_total_children:
             if counts['total'] > date_group.max_total_children:
                 errors.append(_('Limite du nombre total d\'enfants dépassée (max: %(max)d)') % {'max': date_group.max_total_children})
+
+        if child_to_add:
+            # Check if adding this child would exceed the max days for their age group
+            max_days = 0
+            if child_to_add.age() < 6 and date_group.restrict_days_under_6 and date_group.max_days_under_6:
+                max_days = date_group.max_days_under_6
+            elif child_to_add.age() >= 6 and date_group.restrict_days_over_6 and date_group.max_days_over_6:
+                max_days = date_group.max_days_over_6
+
+            if max_days > 0:
+                if self.date_option in date_group.get_yes_days_by_child(child_to_add):
+                    # Child already has a 'yes' for this date option, so no new day is added
+                    pass
+                else:
+                    if len(date_group.get_yes_days_by_child(child_to_add)) + 1 > max_days:
+                        errors.append(_('Limite du nombre de jours réservés dépassée pour %(child)s (max: %(max)d)') % {'child': str(child_to_add), 'max': max_days})
         
         return {
             'valid': len(errors) == 0,

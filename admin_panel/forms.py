@@ -26,7 +26,9 @@ class DateGroupForm(forms.ModelForm):
             'title', 'description', 'status', 'vote_closing_date',
             'restrict_children_under_6', 'max_children_under_6',
             'restrict_children_over_6', 'max_children_over_6',
-            'restrict_total_children', 'max_total_children'
+            'restrict_total_children', 'max_total_children',
+            'restrict_days_under_6', 'max_days_under_6',
+            'restrict_days_over_6', 'max_days_over_6',
         ]
         labels = {
             'title': _('Titre'),
@@ -39,6 +41,10 @@ class DateGroupForm(forms.ModelForm):
             'max_children_over_6': _('Nombre maximum d\'enfants >= 6 ans'),
             'restrict_total_children': _('Limiter le nombre total d\'enfants'),
             'max_total_children': _('Nombre maximum total d\'enfants'),
+            'restrict_days_under_6': _('Limiter le nombre de jour réservé par enfant de moins de 6 ans'),
+            'max_days_under_6': _('Nombre max de jour par enfant de moins de 6 ans'),
+            'restrict_days_over_6': _('Limiter le nombre de jour réservé par enfant de 6 ans ou plus'),
+            'max_days_over_6': _('Nombre max de jour par enfant de 6 ans ou plus'),
         }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -51,6 +57,10 @@ class DateGroupForm(forms.ModelForm):
             'max_children_over_6': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
             'restrict_total_children': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'max_total_children': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'restrict_days_under_6': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'max_days_under_6': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'restrict_days_over_6': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'max_days_over_6': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }
 
 
